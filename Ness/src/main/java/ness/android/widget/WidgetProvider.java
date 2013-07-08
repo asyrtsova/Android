@@ -20,7 +20,7 @@ public class WidgetProvider extends AppWidgetProvider {
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
 
         for (int widgetId: allWidgetIds) {
-            remoteViews.setTextViewText(R.id.text_view, "test");
+//            remoteViews.setTextViewText(R.id.text_view, "test");
             appWidgetManager.updateAppWidget(nessWidget, remoteViews);
         }
 
