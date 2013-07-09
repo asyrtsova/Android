@@ -1,3 +1,13 @@
 <resources>
+
     <string name="app_name">Ness</string>
+
+    <array name="restaurant_names">
+        <item>first</item>
+        <item>second</item>
+        <item>third</item>
+        <item>fourth</item>
+        <item>fifth</item>
+    </array>
+
 </resources>
