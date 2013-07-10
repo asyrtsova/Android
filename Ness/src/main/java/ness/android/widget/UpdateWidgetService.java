@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.widget.RemoteViews;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 /**
  * Created by administrator on 7/8/13.
@@ -18,6 +22,12 @@ public class UpdateWidgetService extends Service {
     double longitude;
     double latitude;
 
+    public static final String TAG_ENTITY_NAME = "entity.name";
+    public static final String TAG_ADDRESS = "entity.address";
+
+
+    public static String url = "https://googledrive.com/host/0B-QhweyqDtobQ2o1ZHpNS1BpLUU/recommendations.json";
+    JSONArray entities = null;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -29,9 +39,13 @@ public class UpdateWidgetService extends Service {
 
         ComponentName nessWidget = new ComponentName(getApplicationContext(), WidgetProvider.class);
 
+        getGPSlocation();
+
+        getOnlineData();
+
+
         for (int widgetId : allWidgetIds) {
 
-            getGPSlocation();
 
             RemoteViews remoteViews = new RemoteViews(this
                     .getApplicationContext().getPackageName(),
@@ -42,8 +56,35 @@ public class UpdateWidgetService extends Service {
 
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
+        stopSelf();
 
         return Service.START_NOT_STICKY;
+    }
+
+    private void getOnlineData() {
+
+        //Creating JSON Parser instance
+        JSONParser jParser = new JSONParser();
+
+        // getting JSON string from URL
+        JSONObject json;// = jParser.getJSONFromUrl(url);
+
+//        try {
+//            // Getting Array of Places
+//            entities = json.getJSONArray(TAG_ENTITY_NAME);
+//
+//            // looping through All Contacts
+//            for(int i = 0; i < entities.length(); i++){
+//                JSONObject c = entities.getJSONObject(i);
+//
+//                // Storing each json item in variable
+//                String name = c.getString(TAG_ENTITY_NAME);
+//                String address = c.getString(TAG_ADDRESS);
+//
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
     }
 
 
@@ -74,3 +115,6 @@ public class UpdateWidgetService extends Service {
 
 
 }
+
+
+

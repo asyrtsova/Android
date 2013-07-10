@@ -9,7 +9,7 @@
         android:targetSdkVersion="16" />
 
     <application
-        android:allowBackup="true" >
+        android:allowBackup="true">
 
         <receiver
                 android:icon="@drawable/ic_launcher"
@@ -26,9 +26,7 @@
 
             </receiver>
 
-        <service android:name=".UpdateWidgetService"
-                android:icon="@drawable/ic_launcher"
-                android:label="Ness Widget Service"></service>
+        <service android:name=".UpdateWidgetService"></service>
 
     </application>
 
