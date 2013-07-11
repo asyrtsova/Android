@@ -8,14 +8,6 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
               >
-    <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Refresh"
-            android:layout_gravity="center_horizontal"
-            android:id="@+id/refresh_btn"
-            android:padding="6dp"
-            />
 
         <TextView
                 android:id="@+id/text_view"

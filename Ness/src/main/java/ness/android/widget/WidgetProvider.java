@@ -14,16 +14,14 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+
         ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
 
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
 
-//        remoteViews.setTextViewText(R.id.text_view, "widget testing");
+        //starts service
         Intent intent = new Intent(context.getApplicationContext(), UpdateWidgetService.class);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, allWidgetIds);
-//        appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
-
         context.startService(intent);
 
 

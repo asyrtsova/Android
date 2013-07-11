@@ -5,12 +5,12 @@ import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
-import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 
 /**
@@ -23,11 +23,9 @@ public class UpdateWidgetService extends Service {
     double longitude;
     double latitude;
 
-    public static final String TAG_ENTITY_NAME = "entity.name";
-    public static final String TAG_ADDRESS = "entity.address";
-
-    String gpsInfo;
-    String entityNames;
+    public static final String TAG_ENTITIES = "entities";
+    public static final String TAG_NAME = "name";
+    public static final String TAG_ADDRESS = "address";
 
 
     public static String url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=37.405&userRequested=true&lon=-122.119&quickrate=false&showPermClosed=true";
@@ -36,41 +34,51 @@ public class UpdateWidgetService extends Service {
     private Handler handler = new Handler();
     private Intent mIntent;
 
-    LinearLayout layout;
+    ArrayList<String> entityNames;
+    ArrayList<String> entityAddresses;
+    String entityList;
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         mIntent = intent;
+        entityNames = new ArrayList<String>();
+        entityAddresses = new ArrayList<String>();
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                    getGPSlocation();
-//                    getOnlineData();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
+//                    getGPSlocation();
+                getOnlineData();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < entityNames.size(); i++) {
+                    sb.append(entityNames.get(i)).append(": ").append(entityAddresses.get(i)).append("\n");
+                }
+                entityList = sb.toString();
 
-                            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
 
-                            int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+                        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
 
-                            for (int widgetId : allWidgetIds) {
+                        int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+
+                        System.err.println("entityList=" + entityList);
+                        for (int widgetId : allWidgetIds) {
 
 
-                                RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),
-                                        R.layout.widget_layout);
+                            RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),
+                                    R.layout.widget_layout);
 
+                            remoteViews.setTextViewText(R.id.text_view, entityList);
 
-                                remoteViews.setTextViewText(R.id.text_view, "test handler and thread");
-
-                                appWidgetManager.updateAppWidget(widgetId, remoteViews);
-                            }
-
+                            appWidgetManager.updateAppWidget(widgetId, remoteViews);
                         }
-                    });
+
+                    }
+                });
             }
         };
         new Thread(runnable).start();
@@ -99,6 +107,8 @@ public class UpdateWidgetService extends Service {
 
     private void getOnlineData() {
 
+//        entityNames.add("Kambucha!");
+
         //Creating JSON Parser instance
         JSONParser jParser = new JSONParser();
 
@@ -107,22 +117,23 @@ public class UpdateWidgetService extends Service {
 
         try {
             // Getting Array of Places
-            entities = json.getJSONArray(TAG_ENTITY_NAME);
+            entities = json.getJSONArray(TAG_ENTITIES);
 
             // looping through All Contacts
             for (int i = 0; i < entities.length(); i++) {
                 JSONObject c = entities.getJSONObject(i);
 
                 // Storing each json item in variable
-                String name = c.getString(TAG_ENTITY_NAME);
-                String address = c.getString(TAG_ADDRESS);
-
+                String name = c.getString(TAG_NAME);
+                JSONObject add = c.getJSONObject(TAG_ADDRESS);
+                String address = add.getString(TAG_ADDRESS);
+                entityNames.add(name);
+                entityAddresses.add(address);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     @Override
