@@ -18,6 +18,7 @@ import android.util.Log;
 
 public class JSONParser {
 
+    public static final String NESS_AUTH_TOKEN = "ness 1|523b6166-e9a5-11e2-95fc-002590189f50|aca26d02b4934135759d59fc1f0e383c";
     static InputStream is = null;
     static JSONObject jObj = null;
     static String json = "";
@@ -34,7 +35,7 @@ public class JSONParser {
             // defaultHttpClient
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost(url);
-
+            httpPost.addHeader("Authorization", NESS_AUTH_TOKEN);
             HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity httpEntity = httpResponse.getEntity();
             is = httpEntity.getContent();

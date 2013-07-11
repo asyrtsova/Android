@@ -2,9 +2,10 @@ package ness.android.widget;
 
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 
 import org.json.JSONArray;
@@ -25,40 +26,75 @@ public class UpdateWidgetService extends Service {
     public static final String TAG_ENTITY_NAME = "entity.name";
     public static final String TAG_ADDRESS = "entity.address";
 
+    String gpsInfo;
+    String entityNames;
 
-    public static String url = "https://googledrive.com/host/0B-QhweyqDtobQ2o1ZHpNS1BpLUU/recommendations.json";
+
+    public static String url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=37.405&userRequested=true&lon=-122.119&quickrate=false&showPermClosed=true";
     JSONArray entities = null;
+
+    private Handler handler = new Handler();
+    private Intent mIntent;
+
+    LinearLayout layout;
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this
-                .getApplicationContext());
+        mIntent = intent;
 
-        int[] allWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                    getGPSlocation();
+//                    getOnlineData();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
 
-        ComponentName nessWidget = new ComponentName(getApplicationContext(), WidgetProvider.class);
+                            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
 
-        getGPSlocation();
+                            int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
 
-        getOnlineData();
-
-
-        for (int widgetId : allWidgetIds) {
-
-
-            RemoteViews remoteViews = new RemoteViews(this
-                    .getApplicationContext().getPackageName(),
-                    R.layout.widget_layout);
+                            for (int widgetId : allWidgetIds) {
 
 
-            remoteViews.setTextViewText(R.id.text_view, gpsStatus + "\nYour Location is - \nLat: " + latitude + "\nLong: " + longitude);
+                                RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),
+                                        R.layout.widget_layout);
 
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
-        }
+
+                                remoteViews.setTextViewText(R.id.text_view, "test handler and thread");
+
+                                appWidgetManager.updateAppWidget(widgetId, remoteViews);
+                            }
+
+                        }
+                    });
+            }
+        };
+        new Thread(runnable).start();
+
         stopSelf();
 
         return Service.START_NOT_STICKY;
+    }
+
+    private void getGPSlocation() {
+
+        gps = new GPSTracker(getApplicationContext());
+
+        if (gps.canGetLocation()) {
+
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+
+            gpsStatus = "GPS/network is enabled!";
+
+
+        } else {
+            gpsStatus = "GPS/network not enabled.";
+        }
     }
 
     private void getOnlineData() {
@@ -67,51 +103,32 @@ public class UpdateWidgetService extends Service {
         JSONParser jParser = new JSONParser();
 
         // getting JSON string from URL
-        JSONObject json;// = jParser.getJSONFromUrl(url);
+        JSONObject json = jParser.getJSONFromUrl(url);
 
-//        try {
-//            // Getting Array of Places
-//            entities = json.getJSONArray(TAG_ENTITY_NAME);
-//
-//            // looping through All Contacts
-//            for(int i = 0; i < entities.length(); i++){
-//                JSONObject c = entities.getJSONObject(i);
-//
-//                // Storing each json item in variable
-//                String name = c.getString(TAG_ENTITY_NAME);
-//                String address = c.getString(TAG_ADDRESS);
-//
-//            }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            // Getting Array of Places
+            entities = json.getJSONArray(TAG_ENTITY_NAME);
+
+            // looping through All Contacts
+            for (int i = 0; i < entities.length(); i++) {
+                JSONObject c = entities.getJSONObject(i);
+
+                // Storing each json item in variable
+                String name = c.getString(TAG_ENTITY_NAME);
+                String address = c.getString(TAG_ADDRESS);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-
-    private void getGPSlocation() {
-
-        gps = new GPSTracker(getApplicationContext());
-
-        if(gps.canGetLocation()){
-
-            latitude = gps.getLatitude();
-            longitude = gps.getLongitude();
-
-            gpsStatus = "GPS/network is enabled!";
-
-
-
-        }else {
-            gpsStatus = "GPS/network not enabled.";
-        }
-    }
-
 
 
 }
