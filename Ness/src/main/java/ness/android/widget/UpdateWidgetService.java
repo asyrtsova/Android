@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.widget.RemoteViews;
 
 import org.json.JSONArray;
@@ -37,7 +38,6 @@ public class UpdateWidgetService extends Service {
     public static String url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=37.405&userRequested=true&lon=-122.119&quickrate=false&showPermClosed=true";
     JSONArray entities = null;
 
-    private Handler handler = new Handler();
     private Intent mIntent;
 
     ArrayList<Entity> entityArray = new ArrayList<Entity>();
@@ -51,7 +51,10 @@ public class UpdateWidgetService extends Service {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-//              getGPSlocation();
+                Looper.prepare();
+                Handler handler = new Handler();
+
+                getGPSlocation();
                 getOnlineData();
 
                 StringBuilder sb = new StringBuilder();
@@ -59,6 +62,9 @@ public class UpdateWidgetService extends Service {
                     sb.append(entityArray.get(i).toString()).append("\n");
                 }
                 entityListString = sb.toString();
+
+
+
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -73,7 +79,7 @@ public class UpdateWidgetService extends Service {
                             RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),
                                     R.layout.widget_layout);
 
-                            remoteViews.setTextViewText(R.id.text_view, entityListString);
+                            remoteViews.setTextViewText(R.id.text_view,  gpsStatus + "\nlat: " + latitude + ", long: " + longitude+ "\n\n" + entityListString);
 
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setData(Uri.parse("https://likeness.com" + entityArray.get(0).nessUri));
@@ -85,6 +91,7 @@ public class UpdateWidgetService extends Service {
 
                     }
                 });
+                Looper.loop();
             }
         };
         new Thread(runnable).start();
