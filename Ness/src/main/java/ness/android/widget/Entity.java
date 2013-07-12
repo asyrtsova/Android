@@ -1,7 +1,5 @@
 package ness.android.widget;
 
-import java.util.ArrayList;
-
 /**
  * Created by administrator on 7/11/13.
  */
@@ -12,16 +10,27 @@ public class Entity {
     String name = "name";
     String address = "address";
     String type = "type";
-    String price = "price";
+    String nessUri = "nessUri";
+    String priceNum = "priceNum";
+    String priceSign = "priceSign";
 
-    String typeString = " ";
-
-    public Entity (String sName, String sAddress, String sType, String sPrice) {
+    public Entity (String sName, String sAddress, String sType, String sPriceNum, String uri) {
 
         name = sName;
         address = sAddress;
         type = sType;
-        price = sPrice;
+        priceNum = sPriceNum;
+        nessUri = uri;
+
+        switch (java.lang.Integer.parseInt(priceNum)) {
+            case 1: priceSign = "$";
+                break;
+            case 2: priceSign = "$$";
+                break;
+            case 3: priceSign = "$$$";
+                break;
+            default: priceSign = "?";
+        }
 
     }
 
@@ -41,12 +50,12 @@ public class Entity {
         this.address = address;
     }
 
-    public String getPrice() {
-        return price;
+    public String getPriceNum() {
+        return priceNum;
     }
 
-    public void setPrice(String price) {
-        this.price = price;
+    public void setPriceNum(String price) {
+        this.priceNum = price;
     }
 
     public String getTypes() {
@@ -57,9 +66,26 @@ public class Entity {
         this.type = type;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getNessUri() {
+        return nessUri;
+    }
+
+    public void setNessUri(String nessUri) {
+        this.nessUri = nessUri;
+    }
+
+
     public String toString() {
 
-        allInfo = name + "\n" + type + ", Price Level:" + price + "\n";
+        allInfo = name + "\n" + type + ", " + priceSign + "\n";
 
         return allInfo;
     }

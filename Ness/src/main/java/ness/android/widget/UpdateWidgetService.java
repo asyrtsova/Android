@@ -1,8 +1,10 @@
 package ness.android.widget;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.widget.RemoteViews;
@@ -10,7 +12,6 @@ import android.widget.RemoteViews;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -30,6 +31,7 @@ public class UpdateWidgetService extends Service {
     public static final String TAG_ADDRESS = "address";
     public static final String TAG_TYPES = "types";
     public static final String TAG_PRICE_LEVEL = "priceLevel";
+    public static final String TAG_NESS_URI = "nessWebUri";
 
 
     public static String url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=37.405&userRequested=true&lon=-122.119&quickrate=false&showPermClosed=true";
@@ -72,6 +74,11 @@ public class UpdateWidgetService extends Service {
                                     R.layout.widget_layout);
 
                             remoteViews.setTextViewText(R.id.text_view, entityListString);
+
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse("https://likeness.com" + entityArray.get(0).nessUri));
+                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), widgetId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                            remoteViews.setOnClickPendingIntent(R.id.relative_layout, pendingIntent);
 
                             appWidgetManager.updateAppWidget(widgetId, remoteViews);
                         }
@@ -125,13 +132,14 @@ public class UpdateWidgetService extends Service {
                 // Storing each json item in variable
                 String name = ent.getString(TAG_NAME);
                 String price = ent.getString(TAG_PRICE_LEVEL);
+                String uri = ent.getString(TAG_NESS_URI);
                 JSONObject add = ent.getJSONObject(TAG_ADDRESS);
                 String address = add.getString(TAG_ADDRESS);
                 JSONArray entityTypes = ent.getJSONArray(TAG_TYPES);
                 String type = entityTypes.getString(0);
 
                 //create Entity object with these variables and add it to an array
-                Entity objEntity = new Entity(name, address, type, price);
+                Entity objEntity = new Entity(name, address, type, price, uri);
                 entityArray.add(objEntity);
             }
         } catch (Exception e) {
