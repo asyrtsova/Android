@@ -10,6 +10,7 @@ import android.widget.RemoteViews;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -23,9 +24,12 @@ public class UpdateWidgetService extends Service {
     double longitude;
     double latitude;
 
+    //tags used to parse JSON
     public static final String TAG_ENTITIES = "entities";
     public static final String TAG_NAME = "name";
     public static final String TAG_ADDRESS = "address";
+    public static final String TAG_TYPES = "types";
+    public static final String TAG_PRICE_LEVEL = "priceLevel";
 
 
     public static String url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=37.405&userRequested=true&lon=-122.119&quickrate=false&showPermClosed=true";
@@ -34,29 +38,25 @@ public class UpdateWidgetService extends Service {
     private Handler handler = new Handler();
     private Intent mIntent;
 
-    ArrayList<String> entityNames;
-    ArrayList<String> entityAddresses;
-    String entityList;
-
+    ArrayList<Entity> entityArray = new ArrayList<Entity>();
+    String entityListString;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         mIntent = intent;
-        entityNames = new ArrayList<String>();
-        entityAddresses = new ArrayList<String>();
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-//                    getGPSlocation();
+//              getGPSlocation();
                 getOnlineData();
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < entityNames.size(); i++) {
-                    sb.append(entityNames.get(i)).append(": ").append(entityAddresses.get(i)).append("\n");
-                }
-                entityList = sb.toString();
 
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < entityArray.size(); i++) {
+                    sb.append(entityArray.get(i).toString()).append("\n");
+                }
+                entityListString = sb.toString();
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -65,14 +65,13 @@ public class UpdateWidgetService extends Service {
 
                         int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
 
-                        System.err.println("entityList=" + entityList);
                         for (int widgetId : allWidgetIds) {
 
 
                             RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),
                                     R.layout.widget_layout);
 
-                            remoteViews.setTextViewText(R.id.text_view, entityList);
+                            remoteViews.setTextViewText(R.id.text_view, entityListString);
 
                             appWidgetManager.updateAppWidget(widgetId, remoteViews);
                         }
@@ -119,16 +118,21 @@ public class UpdateWidgetService extends Service {
             // Getting Array of Places
             entities = json.getJSONArray(TAG_ENTITIES);
 
-            // looping through All Contacts
+            // looping through all entities
             for (int i = 0; i < entities.length(); i++) {
-                JSONObject c = entities.getJSONObject(i);
+                JSONObject ent = entities.getJSONObject(i);
 
                 // Storing each json item in variable
-                String name = c.getString(TAG_NAME);
-                JSONObject add = c.getJSONObject(TAG_ADDRESS);
+                String name = ent.getString(TAG_NAME);
+                String price = ent.getString(TAG_PRICE_LEVEL);
+                JSONObject add = ent.getJSONObject(TAG_ADDRESS);
                 String address = add.getString(TAG_ADDRESS);
-                entityNames.add(name);
-                entityAddresses.add(address);
+                JSONArray entityTypes = ent.getJSONArray(TAG_TYPES);
+                String type = entityTypes.getString(0);
+
+                //create Entity object with these variables and add it to an array
+                Entity objEntity = new Entity(name, address, type, price);
+                entityArray.add(objEntity);
             }
         } catch (Exception e) {
             e.printStackTrace();
