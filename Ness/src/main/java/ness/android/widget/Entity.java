@@ -85,7 +85,7 @@ public class Entity {
 
     public String toString() {
 
-        allInfo = name + "\n" + type + ", " + priceSign + "\n";
+        allInfo = name + "\n" + address + ", " + priceSign + "\n";
 
         return allInfo;
     }

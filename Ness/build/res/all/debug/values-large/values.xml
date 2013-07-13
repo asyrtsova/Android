@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- From: /Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values-large/styles.xml -->
     <style name="LoginFormContainer">
         <item name="android:layout_width">400dp</item>
         <item name="android:layout_height">wrap_content</item>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- From: /Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/strings.xml -->
     <array name="restaurant_names">
         <item>first</item>
         <item>second</item>
@@ -8,13 +9,15 @@
         <item>fourth</item>
         <item>fifth</item>
     </array>
-
+    <!-- From: /Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/colors.xml -->
     <color name="text_color1">#ddffffff</color>
-
+    <!-- From: /Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/strings_activity_login.xml -->
     <string name="action_forgot_password">Recover lost password</string>
     <string name="action_sign_in_register"><b>Sign in</b> or register</string>
     <string name="action_sign_in_short">Sign in</string>
+    <!-- From: /Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/strings.xml -->
     <string name="app_name">A Ness</string>
+    <!-- From: /Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/strings_activity_login.xml -->
     <string name="error_field_required">This field is required</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_invalid_email">This email address is invalid</string>
@@ -22,7 +25,7 @@
     <string name="login_progress_signing_in">Signing in…</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
-
+    <!-- From: /Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/styles.xml -->
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!--
             Theme customizations available in newer API levels can go in
