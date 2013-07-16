@@ -95,6 +95,8 @@ public class UpdateWidgetService extends Service {
 
                         int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
 
+                        DecimalFormat df = new DecimalFormat("00");
+
                         for (int widgetId : allWidgetIds) {
 
 
@@ -103,11 +105,11 @@ public class UpdateWidgetService extends Service {
 
                             remoteViews.setTextViewText(R.id.text_body, entityListString);
                             remoteViews.setTextViewText(R.id.text_user_location, userAddress);
-                            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + timeMinute);
+                            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
 
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setData(Uri.parse("https://likeness.com" + entityArray.get(0).nessUri));
-                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), widgetId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
+                            intentSetUris.setData(Uri.parse("https://likeness.com" + entityArray.get(0).nessUri));
+                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), widgetId, intentSetUris, PendingIntent.FLAG_CANCEL_CURRENT);
                             remoteViews.setOnClickPendingIntent(R.id.relative_layout, pendingIntent);
 
                             appWidgetManager.updateAppWidget(widgetId, remoteViews);
@@ -131,6 +133,10 @@ public class UpdateWidgetService extends Service {
         int timeDayNum = cal.get(Calendar.DAY_OF_WEEK);
         timeHour = cal.get(Calendar.HOUR);
         timeMinute = cal.get(Calendar.MINUTE);
+
+        if(timeHour == 0) {
+            timeHour = 12;
+        }
 
         if(timeDayNum == 1){
             timeDay = "Sunday";
