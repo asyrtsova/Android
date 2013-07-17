@@ -18,6 +18,7 @@ public class Entity {
     String priceSign = "priceSign";
 
     Bitmap photoBitmap;
+    Bitmap photoCropped;
 
     public Entity (String sName, String sAddress, String sType, String sPriceNum, String uriWeb, Bitmap img) {
 
@@ -27,6 +28,8 @@ public class Entity {
         priceNum = sPriceNum;
         nessUri = uriWeb;
         photoBitmap = img;
+
+        photoCropped = cropBitmap(img);
 
         switch (java.lang.Integer.parseInt(priceNum)) {
             case 1: priceSign = "$";
@@ -42,6 +45,13 @@ public class Entity {
             default: priceSign = "?";
         }
 
+    }
+
+    private Bitmap cropBitmap(Bitmap img) {
+
+        Bitmap croppedImg = img.createBitmap(img, 0, (int)(3 * img.getHeight()/8.0), img.getWidth(), img.getHeight()/4);
+
+        return croppedImg;
     }
 
     public String toString() {

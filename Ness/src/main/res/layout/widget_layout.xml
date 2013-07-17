@@ -40,17 +40,18 @@
 
     <ImageView
             android:id="@+id/image_view"
-            android:layout_width="160dp"
-            android:layout_height="60dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/refresh_button"
-            android:layout_centerHorizontal="true"            />
-
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"
+            android:padding="3dp"/>
 
     <TextView
             android:id="@+id/text_body"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/image_view"
+            android:layout_below="@id/refresh_button"
             android:gravity="center_horizontal"
             android:textColor="@color/text_color1"
             android:padding="6dp"

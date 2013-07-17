@@ -115,11 +115,9 @@ public class UpdateWidgetService extends Service {
                             remoteViews.setTextViewText(R.id.text_body, entityListString);
                             remoteViews.setTextViewText(R.id.text_user_location, userAddress);
                             remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
-                            Bitmap bitmap = entityArray.get(0).photoBitmap;
-                            System.err.println("bitmap="+bitmap.getRowBytes());
+                            Bitmap bitmap = entityArray.get(0).photoCropped;
+
                             remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
-
-
 
                             Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
                             intentSetUris.setData(Uri.parse("https://likeness.com" + entityArray.get(0).nessUri));
