@@ -4,19 +4,23 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.widget.DigitalClock;
 import android.widget.RemoteViews;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,6 +53,8 @@ public class UpdateWidgetService extends Service {
     public static final String TAG_TYPES = "types";
     public static final String TAG_PRICE_LEVEL = "priceLevel";
     public static final String TAG_NESS_URI = "nessWebUri";
+    public static final String TAG_COVERPHOTO = "coverPhoto";
+    public static final String TAG_PHOTO_URL = "url";
 
 
     public String url;
@@ -104,9 +110,16 @@ public class UpdateWidgetService extends Service {
                             RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),
                                     R.layout.widget_layout);
 
+                            getTime();
+
                             remoteViews.setTextViewText(R.id.text_body, entityListString);
                             remoteViews.setTextViewText(R.id.text_user_location, userAddress);
                             remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
+                            Bitmap bitmap = entityArray.get(0).photoBitmap;
+                            System.err.println("bitmap="+bitmap.getRowBytes());
+                            remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
+
+
 
                             Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
                             intentSetUris.setData(Uri.parse("https://likeness.com" + entityArray.get(0).nessUri));
@@ -209,20 +222,44 @@ public class UpdateWidgetService extends Service {
 
                 // Storing each json item in variable
                 String name = ent.getString(TAG_NAME);
+
                 String price = ent.getString(TAG_PRICE_LEVEL);
-                String uri = ent.getString(TAG_NESS_URI);
+
+                String uriWeb = ent.getString(TAG_NESS_URI);
+
                 JSONObject add = ent.getJSONObject(TAG_ADDRESS);
                 String city = add.getString(TAG_CITY);
                 String state = add.getString(TAG_STATE);
+
                 JSONArray entityTypes = ent.getJSONArray(TAG_TYPES);
                 String type = entityTypes.getString(0);
 
+                JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
+                String urlImg = coverphoto.getString(TAG_PHOTO_URL);
+
+                Bitmap imgBitmap = getBitmapFromURL(urlImg);
+
                 //create Entity object with these variables and add it to an array
-                Entity objEntity = new Entity(name, city + ", " + state, type, price, uri);
+                Entity objEntity = new Entity(name, city + ", " + state, type, price, uriWeb, imgBitmap);
                 entityArray.add(objEntity);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static Bitmap getBitmapFromURL(String src) {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

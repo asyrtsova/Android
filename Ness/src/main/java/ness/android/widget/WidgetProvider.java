@@ -7,6 +7,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by administrator on 7/7/13.
@@ -36,8 +40,6 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO Auto-generated method stub
-        super.onReceive(context, intent);
 
         //calls onUpdate method if refresh button is pressed
         if (REFRESH_BUTTON.equals(intent.getAction())) {
@@ -49,6 +51,8 @@ public class WidgetProvider extends AppWidgetProvider {
             onUpdate(context, appWidgetManager, appWidgetManager.getAppWidgetIds(nessWidget));
 
         }
+
+        super.onReceive(context, intent);
     }
 
     protected PendingIntent getPendingSelfIntent(Context context, String action) {
