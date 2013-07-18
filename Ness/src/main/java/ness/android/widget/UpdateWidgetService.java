@@ -3,6 +3,7 @@ package ness.android.widget;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.widget.RemoteViews;
+import android.widget.RemoteViewsService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,18 +33,25 @@ import java.util.Locale;
 /**
  * Created by administrator on 7/8/13.
  */
-public class UpdateWidgetService extends Service {
+public class UpdateWidgetService extends RemoteViewsService {
+    @Override
+    public RemoteViewsFactory onGetViewFactory(Intent intent) {
+        return new StackRemoteViewsFactory(this.getApplicationContext(), intent);
+    }
+}
 
-    GPSTracker gps;
-    String gpsStatus;
-    double longitude;
-    double latitude;
+class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
-    String userAddress;
+    public GPSTracker gps;
+    public double longitude;
+    public double latitude;
+    public String gpsStatus;
 
-    String timeDay;
-    int timeHour;
-    int timeMinute;
+    public String userAddress;
+
+    public String timeDay;
+    public int timeHour;
+    public int timeMinute;
 
     //tags used to parse JSON
     public static final String TAG_ENTITIES = "entities";
@@ -58,85 +67,99 @@ public class UpdateWidgetService extends Service {
 
 
     public String url;
-    JSONArray entities = null;
+    public JSONArray entities = null;
 
-    private Intent mIntent;
+    public Intent mIntent;
 
-    ArrayList<Entity> entityArray = new ArrayList<Entity>();
-    String entityListString;
+    public ArrayList<Entity> entityArray = new ArrayList<Entity>();
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public Context mContext;
+    public int mAppWidgetId;
+
+    public StackRemoteViewsFactory(Context context, Intent intent) {
+        mContext = context;
+        mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 
         mIntent = intent;
+    }
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-                Handler handler = new Handler();
+    public void onCreate() {
+        entityArray.add(new Entity("Name Test", "Address Test", "Type Test", "2", null, null));
+        entityArray.add(new Entity("Name2 Test", "Address2 Test", "Type2 Test", "1", null, null));
+        onDataSetChanged();
+    }
 
-                getGPSlocation();
+    public RemoteViews getViewAt(int position) {
+        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
-                final DecimalFormat df = new DecimalFormat("#.000");
+        if (position <= getCount()) {
+            Entity entity = entityArray.get(position);
 
-                url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=" + df.format(latitude) + "&lon=" + df.format(longitude) + "&userRequested=true&quickrate=false&showPermClosed=false";
+            DecimalFormat df = new DecimalFormat("00");
 
-                getOnlineData();
-                getUserAddress();
-                getTime();
+            remoteViews.setTextViewText(R.id.text_body, entity.name);
+//            remoteViews.setTextViewText(R.id.text_user_location, userAddress);
+//            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
+//            Bitmap bitmap = entity.photoCropped;
+//
+//            remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
+//
+//            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
+//            intentSetUris.setData(Uri.parse("https://likeness.com" + entity.nessUri));
+//            remoteViews.setOnClickFillInIntent(R.id.item_layout, intentSetUris);
+        }
 
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < entityArray.size(); i++) {
-                    sb.append(entityArray.get(i).toString()).append("\n");
-                }
-                entityListString = sb.toString();
-
-
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
-
-                        int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-
-                        DecimalFormat df = new DecimalFormat("00");
-
-                        for (int widgetId : allWidgetIds) {
+        return remoteViews;
+    }
 
 
-                            RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),
-                                    R.layout.widget_layout);
+    public void onDestroy() {
+        entityArray.clear();
+    }
 
-                            getTime();
+    public int getCount() {
+        return entityArray.size();
+    }
 
-                            remoteViews.setTextViewText(R.id.text_body, entityListString);
-                            remoteViews.setTextViewText(R.id.text_user_location, userAddress);
-                            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
-                            Bitmap bitmap = entityArray.get(0).photoCropped;
+    public RemoteViews getLoadingView() {
+        return null;
+    }
 
-                            remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
+    public int getViewTypeCount() {
+        return 1;
+    }
 
-                            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
-                            intentSetUris.setData(Uri.parse("https://likeness.com" + entityArray.get(0).nessUri));
-                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), widgetId, intentSetUris, PendingIntent.FLAG_CANCEL_CURRENT);
-                            remoteViews.setOnClickPendingIntent(R.id.relative_layout, pendingIntent);
+    public long getItemId(int position) {
+        return position;
+    }
 
-                            appWidgetManager.updateAppWidget(widgetId, remoteViews);
-                        }
+    public boolean hasStableIds() {
+        return true;
+    }
 
-                    }
-                });
-                Looper.loop();
-            }
-        };
-        new Thread(runnable).start();
+    public void onDataSetChanged() {
 
-        stopSelf();
+        getGPSlocation();
 
-        return Service.START_NOT_STICKY;
+        final DecimalFormat df = new DecimalFormat("#.000");
+
+        url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=" + df.format(latitude) + "&lon=" + df.format(longitude) + "&userRequested=true&quickrate=false&showPermClosed=false";
+
+//        getOnlineData();
+//        getUserAddress();
+//        getTime();
+
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+
+        int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+
+        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(),
+                R.layout.widget_layout);
+
+        getTime();
+
+        appWidgetManager.updateAppWidget(mAppWidgetId, remoteViews);
+
     }
 
     private void getTime() {
@@ -170,7 +193,7 @@ public class UpdateWidgetService extends Service {
 
     private void getUserAddress() {
 
-        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
         try {
             List<Address> userAddressList = geocoder.getFromLocation(latitude, longitude, 1);
             if (userAddressList.size() > 0 && userAddressList.get(0).getAddressLine(1) != null) {
@@ -185,20 +208,19 @@ public class UpdateWidgetService extends Service {
 
     private void getGPSlocation() {
 
-        gps = new GPSTracker(getApplicationContext());
+        gps = new GPSTracker(mContext);
 
         if (gps.canGetLocation()) {
-
             latitude = gps.getLatitude();
             longitude = gps.getLongitude();
 
             gpsStatus = "GPS/network is enabled!";
 
-
         } else {
-            gpsStatus = "GPS/network not enabled.";
             latitude = 37.4;
             longitude = -122.1;
+
+            gpsStatus = "GPS/network not enabled.";
         }
     }
 
@@ -261,11 +283,6 @@ public class UpdateWidgetService extends Service {
         }
     }
 
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
 
 
 }

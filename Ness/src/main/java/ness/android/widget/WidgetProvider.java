@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.widget.RemoteViews;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -22,19 +23,26 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-        ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
+        for (int i = 0; i < appWidgetIds.length; ++i) {
 
-        int[] allWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
+            Intent intentStartService = new Intent(context, UpdateWidgetService.class);
 
-        //starts service to get data
-        Intent intentStartService = new Intent(context.getApplicationContext(), UpdateWidgetService.class);
-        intentStartService.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, allWidgetIds);
-        context.startService(intentStartService);
+            //add app widget ID to the intent extras
+            intentStartService.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
+            intentStartService.setData(Uri.parse(intentStartService.toUri(Intent.URI_INTENT_SCHEME)));
 
-        remoteViews.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context, REFRESH_BUTTON));
+            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
-        appWidgetManager.updateAppWidget(nessWidget, remoteViews);
+            //set up the RemoteViews object to use a RemoteViews adapter, which connects to
+            // a RemoveViewsService through the specified intent. This populates the data.
+            remoteViews.setRemoteAdapter(appWidgetIds[i], R.id.stack_view, intentStartService);
+
+            //sets an empty view to be displayed when the collection has no items
+            remoteViews.setEmptyView(R.id.stack_view, R.id.empty_view);
+
+            appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
+
+        }
 
     }
 

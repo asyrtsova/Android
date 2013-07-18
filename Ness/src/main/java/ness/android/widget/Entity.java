@@ -16,9 +16,9 @@ public class Entity {
     String nessUri = "nessUri";
     String priceNum = "priceNum";
     String priceSign = "priceSign";
-
-    Bitmap photoBitmap;
-    Bitmap photoCropped;
+//
+//    Bitmap photoBitmap;
+//    Bitmap photoCropped;
 
     public Entity (String sName, String sAddress, String sType, String sPriceNum, String uriWeb, Bitmap img) {
 
@@ -26,10 +26,10 @@ public class Entity {
         address = sAddress;
         type = sType;
         priceNum = sPriceNum;
-        nessUri = uriWeb;
-        photoBitmap = img;
-
-        photoCropped = cropBitmap(img);
+//        nessUri = uriWeb;
+//        photoBitmap = img;
+//
+//        photoCropped = cropBitmap(img);
 
         switch (java.lang.Integer.parseInt(priceNum)) {
             case 1: priceSign = "$";
