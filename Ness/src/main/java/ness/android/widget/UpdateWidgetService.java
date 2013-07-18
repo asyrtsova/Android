@@ -1,7 +1,5 @@
 package ness.android.widget;
 
-import android.app.PendingIntent;
-import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +9,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -76,6 +73,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public Context mContext;
     public int mAppWidgetId;
 
+    int debug = 0;
+
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
         mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -84,13 +83,14 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onCreate() {
-        entityArray.add(new Entity("Name Test", "Address Test", "Type Test", "2", null, null));
-        entityArray.add(new Entity("Name2 Test", "Address2 Test", "Type2 Test", "1", null, null));
         onDataSetChanged();
     }
 
     public RemoteViews getViewAt(int position) {
         RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
+
+        System.err.println("INSIDE GETVIEWAT:" + debug);
+        debug++;
 
         if (position <= getCount()) {
             Entity entity = entityArray.get(position);
@@ -98,15 +98,15 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             DecimalFormat df = new DecimalFormat("00");
 
             remoteViews.setTextViewText(R.id.text_body, entity.name);
-//            remoteViews.setTextViewText(R.id.text_user_location, userAddress);
-//            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
-//            Bitmap bitmap = entity.photoCropped;
-//
-//            remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
-//
-//            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
-//            intentSetUris.setData(Uri.parse("https://likeness.com" + entity.nessUri));
-//            remoteViews.setOnClickFillInIntent(R.id.item_layout, intentSetUris);
+            remoteViews.setTextViewText(R.id.text_user_location, userAddress);
+            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
+            Bitmap bitmap = entity.photoCropped;
+
+            remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
+
+            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
+            intentSetUris.setData(Uri.parse("https://likeness.com" + entity.nessUri));
+            remoteViews.setOnClickFillInIntent(R.id.item_layout, intentSetUris);
         }
 
         return remoteViews;
@@ -139,26 +139,40 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public void onDataSetChanged() {
 
-        getGPSlocation();
-
         final DecimalFormat df = new DecimalFormat("#.000");
 
         url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=" + df.format(latitude) + "&lon=" + df.format(longitude) + "&userRequested=true&quickrate=false&showPermClosed=false";
 
-//        getOnlineData();
-//        getUserAddress();
-//        getTime();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                Handler handler = new Handler();
 
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
 
-        int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+                        getGPSlocation();
+                        getOnlineData();
+                        getUserAddress();
+                        getTime();
 
-        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(),
-                R.layout.widget_layout);
+                        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
 
-        getTime();
+                        int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
 
-        appWidgetManager.updateAppWidget(mAppWidgetId, remoteViews);
+                        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(),
+                                R.layout.widget_layout);
+
+                        appWidgetManager.updateAppWidget(mAppWidgetId, remoteViews);
+                    }
+                });
+                Looper.loop();
+            }
+        };
+        new Thread(runnable).start();
+        getOnlineData();
 
     }
 
@@ -169,24 +183,24 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         timeHour = cal.get(Calendar.HOUR);
         timeMinute = cal.get(Calendar.MINUTE);
 
-        if(timeHour == 0) {
+        if (timeHour == 0) {
             timeHour = 12;
         }
 
-        if(timeDayNum == 1){
-            timeDay = "Sunday";
-        } else if (timeDayNum==2){
-            timeDay = "Monday";
-        } else if (timeDayNum==3){
-            timeDay = "Tuesday";
-        } else if (timeDayNum==4){
-            timeDay = "Wednesday";
-        } else if (timeDayNum==5){
-            timeDay = "Thursday";
-        } else if (timeDayNum==6){
-            timeDay = "Friday";
-        } else if (timeDayNum==7){
-            timeDay = "Saturday";
+        if (timeDayNum == 1) {
+            timeDay = "Sun";
+        } else if (timeDayNum == 2) {
+            timeDay = "Mon";
+        } else if (timeDayNum == 3) {
+            timeDay = "Tues";
+        } else if (timeDayNum == 4) {
+            timeDay = "Wed";
+        } else if (timeDayNum == 5) {
+            timeDay = "Thurs";
+        } else if (timeDayNum == 6) {
+            timeDay = "Fri";
+        } else if (timeDayNum == 7) {
+            timeDay = "Sat";
         }
 
     }
@@ -229,10 +243,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         //Creating JSON Parser instance
         JSONParser jParser = new JSONParser();
 
-        // getting JSON string from URL
-        JSONObject json = jParser.getJSONFromUrl(url);
-
         try {
+            // getting JSON string from URL
+            JSONObject json = jParser.getJSONFromUrl(url);
             // Getting Array of Places
             entities = json.getJSONArray(TAG_ENTITIES);
 
@@ -282,7 +295,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             return null;
         }
     }
-
 
 
 }
