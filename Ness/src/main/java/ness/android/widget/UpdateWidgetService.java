@@ -100,7 +100,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             remoteViews.setTextViewText(R.id.text_body, entity.name);
             remoteViews.setTextViewText(R.id.text_user_location, userAddress);
             remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
-            Bitmap bitmap = entity.photoCropped;
+            Bitmap bitmap = entity.photoBitmap;
 
             remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
 
@@ -154,7 +154,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                     public void run() {
 
                         getGPSlocation();
-                        getOnlineData();
                         getUserAddress();
                         getTime();
 
