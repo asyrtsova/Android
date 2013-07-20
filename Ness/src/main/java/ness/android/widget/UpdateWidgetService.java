@@ -40,8 +40,8 @@ public class UpdateWidgetService extends RemoteViewsService {
 class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public GPSTracker gps;
-    public double longitude;
-    public double latitude;
+    public double longitude = -122;
+    public double latitude = 37;
     public String gpsStatus;
 
     public String userAddress;
@@ -83,14 +83,13 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onCreate() {
-        onDataSetChanged();
     }
 
     public RemoteViews getViewAt(int position) {
-        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
-        System.err.println("INSIDE GETVIEWAT:" + debug);
-        debug++;
+        System.err.println("INSIDE GETVIEWAT!!!" + position);
+
+        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
         if (position <= getCount()) {
             Entity entity = entityArray.get(position);
@@ -104,9 +103,14 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
 
-            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
-            intentSetUris.setData(Uri.parse("https://likeness.com" + entity.nessUri));
-            remoteViews.setOnClickFillInIntent(R.id.item_layout, intentSetUris);
+//            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
+//            intentSetUris.setData(Uri.parse("https://likeness.com" + entity.nessUri));
+//            remoteViews.setOnClickFillInIntent(R.id.item_layout, intentSetUris);
+
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+
+            appWidgetManager.updateAppWidget(mAppWidgetId, remoteViews);
+
         }
 
         return remoteViews;
@@ -118,6 +122,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public int getCount() {
+        System.err.println("size=" + entityArray.size());
         return entityArray.size();
     }
 
@@ -139,39 +144,29 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public void onDataSetChanged() {
 
-        final DecimalFormat df = new DecimalFormat("#.000");
+//        Runnable runnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                Looper.prepare();
+//                Handler handler = new Handler();
+//
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
 
-        url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=" + df.format(latitude) + "&lon=" + df.format(longitude) + "&userRequested=true&quickrate=false&showPermClosed=false";
-
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-                Handler handler = new Handler();
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        getGPSlocation();
-                        getUserAddress();
-                        getTime();
-
-                        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
-
-                        int[] allWidgetIds = mIntent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-
-                        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(),
-                                R.layout.widget_layout);
-
-                        appWidgetManager.updateAppWidget(mAppWidgetId, remoteViews);
-                    }
-                });
-                Looper.loop();
-            }
-        };
-        new Thread(runnable).start();
+        getGPSlocation();
         getOnlineData();
+        getUserAddress();
+        getTime();
+
+        System.err.println("INSIDE datasetchanged");
+
+//                    }
+//                });
+//                Looper.loop();
+//            }
+//        };
+//        new Thread(runnable).start();
 
     }
 
@@ -229,15 +224,23 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             gpsStatus = "GPS/network is enabled!";
 
-        } else {
+        }
+
+        if (latitude < 0.1) {
             latitude = 37.4;
             longitude = -122.1;
 
             gpsStatus = "GPS/network not enabled.";
         }
+
+        System.err.println("lat:" + latitude + ", long:" + longitude + gpsStatus);
     }
 
     private void getOnlineData() {
+
+        final DecimalFormat df = new DecimalFormat("#.000");
+
+        url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=" + df.format(latitude) + "&lon=" + df.format(longitude) + "&userRequested=true&quickrate=false&showPermClosed=false";
 
         //Creating JSON Parser instance
         JSONParser jParser = new JSONParser();
@@ -255,7 +258,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 // Storing each json item in variable
                 String name = ent.getString(TAG_NAME);
 
-                String price = ent.getString(TAG_PRICE_LEVEL);
+                String price = ent.has(TAG_PRICE_LEVEL) ? ent.getString(TAG_PRICE_LEVEL) : "-1";
 
                 String uriWeb = ent.getString(TAG_NESS_URI);
 
@@ -266,14 +269,19 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 JSONArray entityTypes = ent.getJSONArray(TAG_TYPES);
                 String type = entityTypes.getString(0);
 
-                JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
-                String urlImg = coverphoto.getString(TAG_PHOTO_URL);
+                Bitmap imgBitmap = null;
+                if (ent.has(TAG_COVERPHOTO)) {
+                    JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
+                    String urlImg = coverphoto.getString(TAG_PHOTO_URL);
 
-                Bitmap imgBitmap = getBitmapFromURL(urlImg);
+                    imgBitmap = getBitmapFromURL(urlImg);
+                }
 
                 //create Entity object with these variables and add it to an array
                 Entity objEntity = new Entity(name, city + ", " + state, type, price, uriWeb, imgBitmap);
                 entityArray.add(objEntity);
+
+                System.err.println("INSIDE GETONLINE DATA");
             }
         } catch (Exception e) {
             e.printStackTrace();

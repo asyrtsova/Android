@@ -5,6 +5,7 @@
                     android:minHeight="40dp"
                     android:minWidth="250dp"
                     android:updatePeriodMillis="640000"
-                    android:previewImage="@drawable/ic_launcher"  >
+                    android:previewImage="@drawable/ic_launcher"
+                    android:autoAdvanceViewId="@id/stack_view">
 
 </appwidget-provider>
