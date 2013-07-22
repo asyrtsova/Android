@@ -40,8 +40,8 @@ public class UpdateWidgetService extends RemoteViewsService {
 class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public GPSTracker gps;
-    public double longitude = -122;
-    public double latitude = 37;
+    public double longitude;
+    public double latitude;
     public String gpsStatus;
 
     public String userAddress;
@@ -73,8 +73,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public Context mContext;
     public int mAppWidgetId;
 
-    int debug = 0;
-
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
         mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -83,6 +81,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onCreate() {
+        onDataSetChanged();
     }
 
     public RemoteViews getViewAt(int position) {
@@ -107,9 +106,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 //            intentSetUris.setData(Uri.parse("https://likeness.com" + entity.nessUri));
 //            remoteViews.setOnClickFillInIntent(R.id.item_layout, intentSetUris);
 
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
-
-            appWidgetManager.updateAppWidget(mAppWidgetId, remoteViews);
+//            Bundle extras = new Bundle();
+//            extras.putString(HoneybuzzListActivity.EXTRA_ID, buzz.id);
+//            Intent fillInIntent = new Intent();
+//            fillInIntent.putExtras(extras);
+//            rv.setOnClickFillInIntent(R.id.stackWidgetItem, fillInIntent);
 
         }
 
@@ -127,7 +128,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public RemoteViews getLoadingView() {
-        return null;
+        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.id.empty_view);
+        return remoteViews;
     }
 
     public int getViewTypeCount() {
@@ -144,29 +146,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public void onDataSetChanged() {
 
-//        Runnable runnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                Looper.prepare();
-//                Handler handler = new Handler();
-//
-//                handler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-
         getGPSlocation();
         getOnlineData();
         getUserAddress();
         getTime();
 
         System.err.println("INSIDE datasetchanged");
-
-//                    }
-//                });
-//                Looper.loop();
-//            }
-//        };
-//        new Thread(runnable).start();
 
     }
 

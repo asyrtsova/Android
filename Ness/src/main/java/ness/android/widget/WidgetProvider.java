@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.widget.RemoteViews;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,25 +26,36 @@ public class WidgetProvider extends AppWidgetProvider {
 
         for (int i = 0; i < appWidgetIds.length; ++i) {
 
-            Intent intentStartService = new Intent(context, UpdateWidgetService.class);
+            Intent serviceIntent = new Intent(context, UpdateWidgetService.class);
 
             //add app widget ID to the intent extras
-            intentStartService.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
-            intentStartService.setData(Uri.parse(intentStartService.toUri(Intent.URI_INTENT_SCHEME)));
+            serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
+            //embed extras
+            serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
 
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
             //set up the RemoteViews object to use a RemoteViews adapter, which connects to
             // a RemoveViewsService through the specified intent. This populates the data.
-            remoteViews.setRemoteAdapter(appWidgetIds[i], R.id.stack_view, intentStartService);
+            remoteViews.setRemoteAdapter(appWidgetIds[i], R.id.stack_view, serviceIntent);
 
             //sets an empty view to be displayed when the collection has no items
             remoteViews.setEmptyView(R.id.stack_view, R.id.empty_view);
+
+            //opens browser for item click
+//            Intent browserIntent = new Intent(context, open what);
+//            viewIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
+//            viewIntent.setData(Uri.parse(viewIntent.toUri(Intent.URI_INTENT_SCHEME)));
+//
+//            PendingIntent viewPendingIntent = PendingIntent.getActivity(context, 0, viewIntent, 0);
+//            remoteViews.setPendingIntentTemplate(R.id.stackWidgetView, viewPendingIntent);
+
 
             appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
 
         }
 
+        super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
 
     @Override
@@ -83,7 +95,6 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onEnabled(Context context) {
         super.onEnabled(context);
     }
-
 
 
 }
