@@ -10,7 +10,9 @@
         <item>fifth</item>
     </array>
     <!-- From: file:/Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/colors.xml -->
-    <color name="text_color1">#ddffffff</color>
+    <color name="color_darkgray">#ff686868</color>
+    <color name="color_lightgray">#ddafafaf</color>
+    <color name="color_red">#dd900000</color>
     <!-- From: file:/Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/strings_activity_login.xml -->
     <string name="action_forgot_password">Recover lost password</string>
     <string name="action_sign_in_register"><b>Sign in</b> or register</string>

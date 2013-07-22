@@ -52,7 +52,10 @@ public class WidgetProvider extends AppWidgetProvider {
 
             PendingIntent browserPendingIntent = PendingIntent.getBroadcast(context,0,intentSetUris, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setPendingIntentTemplate(R.id.stack_view, browserPendingIntent);
+            System.err.println("setPendingIntentTemplate");
 
+//            PendingIntent viewPendingIntent = PendingIntent.getActivity(context, 0, viewIntent, 0);
+//            remoteViews.setPendingIntentTemplate(R.id.stackWidgetView, viewPendingIntent);
             appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
 
         }
@@ -62,7 +65,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
+        System.err.println("onRecieve:"+intent.getAction());
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.id.item_layout);
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 

@@ -94,7 +94,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             DecimalFormat df = new DecimalFormat("00");
 
-            remoteViews.setTextViewText(R.id.text_body, entity.name);
+            remoteViews.setTextViewText(R.id.text_title, entity.name);
+            remoteViews.setTextViewText(R.id.text_entity_info, "Head to: " + entity.address);
             remoteViews.setTextViewText(R.id.text_user_location, userAddress);
             remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
             Bitmap bitmap = entity.photoBitmap;
@@ -108,7 +109,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             Intent fillInIntent = new Intent();
             fillInIntent.putExtras(extras);
             remoteViews.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
-
+            System.err.println("setOnClickFillInIntent "+ entity.nessUri);
         }
 
         return remoteViews;
