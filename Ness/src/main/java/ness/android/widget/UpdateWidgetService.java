@@ -109,9 +109,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             fillInIntent.putExtras(extras);
             remoteViews.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
 
-            String url = fillInIntent.getStringExtra(WidgetProvider.OPEN_BROWSER);
-            System.err.println("FILLININTENT URL:" + url);
-
         }
 
         return remoteViews;
@@ -127,8 +124,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public RemoteViews getLoadingView() {
-        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.id.empty_view);
-        return remoteViews;
+        return null;
     }
 
     public int getViewTypeCount() {
@@ -144,12 +140,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onDataSetChanged() {
-
-        getGPSlocation();
-        getOnlineData();
-        getUserAddress();
-        getTime();
-
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            getGPSlocation();
+            getOnlineData();
+            getUserAddress();
+            getTime();
+        }
     }
 
     private void getTime() {
@@ -206,8 +202,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             gpsStatus = "GPS/network is enabled!";
 
-        }
-        else {
+        } else {
 
             gpsStatus = "GPS/network not enabled.";
         }
@@ -215,7 +210,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         if (latitude < 0.01) {
             latitude = 40.766;
             longitude = -73.975;
-;
+            ;
         }
 
     }

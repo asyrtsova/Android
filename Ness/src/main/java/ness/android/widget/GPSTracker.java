@@ -64,7 +64,9 @@ public class GPSTracker extends Service implements LocationListener {
                 this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
-                    Looper.prepare();
+                    if (Looper.myLooper() == null) {
+                        Looper.prepare();
+                    }
                     locationManager.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
@@ -82,7 +84,9 @@ public class GPSTracker extends Service implements LocationListener {
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
                     if (location == null) {
-                        Looper.prepare();
+                        if (Looper.myLooper() == null) {
+                            Looper.prepare();
+                        }
                         locationManager.requestLocationUpdates(
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,

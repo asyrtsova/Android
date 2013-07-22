@@ -48,7 +48,7 @@ public class WidgetProvider extends AppWidgetProvider {
             Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
             intentSetUris.setAction(WidgetProvider.OPEN_BROWSER);
             intentSetUris.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,appWidgetIds[i]);
-            intentSetUris.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
+            intentSetUris.setData(Uri.parse(intentSetUris.toUri(Intent.URI_INTENT_SCHEME)));
 
             PendingIntent browserPendingIntent = PendingIntent.getBroadcast(context,0,intentSetUris, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setPendingIntentTemplate(R.id.stack_view, browserPendingIntent);
