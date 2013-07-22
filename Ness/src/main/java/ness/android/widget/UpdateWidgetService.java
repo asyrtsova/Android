@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.RemoteViews;
@@ -86,8 +87,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public RemoteViews getViewAt(int position) {
 
-        System.err.println("INSIDE GETVIEWAT!!!" + position);
-
         RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
         if (position <= getCount()) {
@@ -102,15 +101,16 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
 
-//            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
-//            intentSetUris.setData(Uri.parse("https://likeness.com" + entity.nessUri));
-//            remoteViews.setOnClickFillInIntent(R.id.item_layout, intentSetUris);
+            //Set fill-intent to fill in the pending intent template in WidgetProvider
+            Bundle extras = new Bundle();
+            extras.putString(WidgetProvider.OPEN_BROWSER, "https://likeness.com" + entity.nessUri);
 
-//            Bundle extras = new Bundle();
-//            extras.putString(HoneybuzzListActivity.EXTRA_ID, buzz.id);
-//            Intent fillInIntent = new Intent();
-//            fillInIntent.putExtras(extras);
-//            rv.setOnClickFillInIntent(R.id.stackWidgetItem, fillInIntent);
+            Intent fillInIntent = new Intent();
+            fillInIntent.putExtras(extras);
+            remoteViews.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
+
+            String url = fillInIntent.getStringExtra(WidgetProvider.OPEN_BROWSER);
+            System.err.println("FILLININTENT URL:" + url);
 
         }
 
@@ -123,7 +123,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public int getCount() {
-        System.err.println("size=" + entityArray.size());
         return entityArray.size();
     }
 
@@ -150,8 +149,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         getOnlineData();
         getUserAddress();
         getTime();
-
-        System.err.println("INSIDE datasetchanged");
 
     }
 
@@ -210,15 +207,17 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             gpsStatus = "GPS/network is enabled!";
 
         }
-
-        if (latitude < 0.1) {
-            latitude = 37.4;
-            longitude = -122.1;
+        else {
 
             gpsStatus = "GPS/network not enabled.";
         }
 
-        System.err.println("lat:" + latitude + ", long:" + longitude + gpsStatus);
+        if (latitude < 0.01) {
+            latitude = 40.766;
+            longitude = -73.975;
+;
+        }
+
     }
 
     private void getOnlineData() {
@@ -266,7 +265,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 Entity objEntity = new Entity(name, city + ", " + state, type, price, uriWeb, imgBitmap);
                 entityArray.add(objEntity);
 
-                System.err.println("INSIDE GETONLINE DATA");
             }
         } catch (Exception e) {
             e.printStackTrace();
