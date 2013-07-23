@@ -40,10 +40,9 @@ public class WidgetProvider extends AppWidgetProvider {
             remoteViews.setEmptyView(R.id.stack_view, R.id.empty_view);
 
             //sets up refresh button
-            final Intent refreshIntent = new Intent(context, WidgetProvider.class);
+            Intent refreshIntent = new Intent(context, WidgetProvider.class);
             refreshIntent.setAction(WidgetProvider.REFRESH_ACTION);
-            final PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(context, 0,
-                    refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(context, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
 
             //sets up pending intent template, allowing individualized behavior for each item

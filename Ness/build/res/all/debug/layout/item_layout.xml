@@ -4,9 +4,11 @@
                 android:id="@+id/item_layout"
                 android:background="@drawable/widget_background"
                 android:layout_margin="0dp"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:descendantFocusability="beforeDescendants"
                 android:orientation="vertical"
+                android:gravity="center"
         >
     <ImageView
             android:id="@+id/image_view"

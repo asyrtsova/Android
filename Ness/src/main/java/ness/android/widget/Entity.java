@@ -16,17 +16,20 @@ public class Entity {
     String nessUri = "nessUri";
     String priceNum = "priceNum";
     String priceSign = "priceSign";
+    String photoUri = "imgUri";
+    double latitude;
+    double longitude;
 
-    Bitmap photoBitmap;
-
-    public Entity (String sName, String sAddress, String sType, String sPriceNum, String uriWeb, Bitmap img) {
+    public Entity (String sName, String sAddress, String sType, String sPriceNum, String uriWeb, String imgUri, double entLatitude, double entLongitude) {
 
         name = sName;
         address = sAddress;
         type = sType;
         priceNum = sPriceNum;
         nessUri = uriWeb;
-        photoBitmap = img;
+        photoUri = imgUri;
+        latitude = entLatitude;
+        longitude = entLongitude;
 
         switch (java.lang.Integer.parseInt(priceNum)) {
             case 1: priceSign = "$";

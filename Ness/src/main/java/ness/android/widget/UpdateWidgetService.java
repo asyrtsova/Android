@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,6 +63,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public static final String TAG_NESS_URI = "nessWebUri";
     public static final String TAG_COVERPHOTO = "coverPhoto";
     public static final String TAG_PHOTO_URL = "url";
+    public static final String TAG_LOCATION = "location";
+    public static final String TAG_LATITUDE = "lat";
+    public static final String TAG_LONGITUDE = "lon";
 
 
     public String url;
@@ -82,7 +86,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onCreate() {
-        onDataSetChanged();
+
+
     }
 
     public RemoteViews getViewAt(int position) {
@@ -92,15 +97,19 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         if (position <= getCount()) {
             Entity entity = entityArray.get(position);
 
-            DecimalFormat df = new DecimalFormat("00");
+            double distance = getDistanceFromEntity(entity);
+
+            Bitmap imgBitmap = getBitmapFromURL(entity.photoUri);
+
+            DecimalFormat timeFormat = new DecimalFormat("00");
+            DecimalFormat distanceFormat = new DecimalFormat("#0.0");
 
             remoteViews.setTextViewText(R.id.text_title, entity.name);
-            remoteViews.setTextViewText(R.id.text_entity_info, "Head to: " + entity.address);
+            remoteViews.setTextViewText(R.id.text_entity_info, entity.address + " | " + distanceFormat.format(distance) + " mi");
             remoteViews.setTextViewText(R.id.text_user_location, userAddress);
-            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + df.format(timeMinute));
-            Bitmap bitmap = entity.photoBitmap;
+            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + timeFormat.format(timeMinute));
 
-            remoteViews.setImageViewBitmap(R.id.image_view, bitmap);
+            remoteViews.setImageViewBitmap(R.id.image_view, imgBitmap);
 
             //Set fill-intent to fill in the pending intent template in WidgetProvider
             Bundle extras = new Bundle();
@@ -110,9 +119,23 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             fillInIntent.putExtras(extras);
             remoteViews.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
 
+            //Set fill-intent for refresh button
+            Intent refreshIntent = new Intent();
+            remoteViews.setOnClickFillInIntent(R.id.refresh_button, refreshIntent);
+
+            System.err.println("INSIDE GET VIEW AT for" + entity.name);
+
         }
 
         return remoteViews;
+    }
+
+    private double getDistanceFromEntity(Entity entity) {
+        float[] results = new float[1];
+        Location.distanceBetween(latitude, longitude, entity.latitude, entity.longitude, results);
+        //get distance in miles from distance in meters
+        double distanceInMiles = results[0] * 0.000621371;
+        return distanceInMiles;
     }
 
 
@@ -148,6 +171,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             getTime();
         }
     }
+
+
 
     private void getTime() {
         Calendar cal = Calendar.getInstance();
@@ -216,6 +241,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     }
 
+
     private void getOnlineData() {
 
         final DecimalFormat df = new DecimalFormat("#.000");
@@ -246,19 +272,22 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 String city = add.getString(TAG_CITY);
                 String state = add.getString(TAG_STATE);
 
+                JSONObject loc = ent.getJSONObject(TAG_LOCATION);
+                double entLat = loc.getDouble(TAG_LATITUDE);
+                double entLon = loc.getDouble(TAG_LONGITUDE);
+
                 JSONArray entityTypes = ent.getJSONArray(TAG_TYPES);
                 String type = entityTypes.getString(0);
 
+                String urlImg = null;
                 Bitmap imgBitmap = null;
                 if (ent.has(TAG_COVERPHOTO)) {
                     JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
-                    String urlImg = coverphoto.getString(TAG_PHOTO_URL);
-
-                    imgBitmap = getBitmapFromURL(urlImg);
+                    urlImg = coverphoto.getString(TAG_PHOTO_URL);
                 }
 
                 //create Entity object with these variables and add it to an array
-                Entity objEntity = new Entity(name, city + ", " + state, type, price, uriWeb, imgBitmap);
+                Entity objEntity = new Entity(name, city + ", " + state, type, price, uriWeb, urlImg, entLat, entLon);
                 entityArray.add(objEntity);
 
             }
