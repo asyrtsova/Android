@@ -15,8 +15,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:gravity="center"
-              android:background="@drawable/widget_background"
-              android:textColor="@color/color_darkgray"
+              android:textColor="@color/color_white"
               android:textStyle="bold"
               android:text="Empty or loading..."
               android:textSize="20dp" />

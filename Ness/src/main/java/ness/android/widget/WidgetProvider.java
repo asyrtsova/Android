@@ -7,21 +7,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.widget.RemoteViews;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by administrator on 7/7/13.
  */
 public class WidgetProvider extends AppWidgetProvider {
 
-    public static String REFRESH_BUTTON = "ness.android.widget.REFRESH_BUTTON";
+    public static String REFRESH_ACTION = "ness.android.widget.REFRESH_ACTION";
     public static String OPEN_BROWSER = "ness.android.widget.OPEN_BROWSER";
+    public static String EXTRA_ITEM = "ness.android.widget.EXTRA_ITEM";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -44,18 +39,23 @@ public class WidgetProvider extends AppWidgetProvider {
             //sets an empty view to be displayed when the collection has no items
             remoteViews.setEmptyView(R.id.stack_view, R.id.empty_view);
 
+            //sets up refresh button
+            final Intent refreshIntent = new Intent(context, WidgetProvider.class);
+            refreshIntent.setAction(WidgetProvider.REFRESH_ACTION);
+            final PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(context, 0,
+                    refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            remoteViews.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
+
             //sets up pending intent template, allowing individualized behavior for each item
-            Intent intentSetUris = new Intent(Intent.ACTION_VIEW);
+            Intent intentSetUris = new Intent(context, WidgetProvider.class);
             intentSetUris.setAction(WidgetProvider.OPEN_BROWSER);
             intentSetUris.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,appWidgetIds[i]);
             intentSetUris.setData(Uri.parse(intentSetUris.toUri(Intent.URI_INTENT_SCHEME)));
 
             PendingIntent browserPendingIntent = PendingIntent.getBroadcast(context,0,intentSetUris, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setPendingIntentTemplate(R.id.stack_view, browserPendingIntent);
-            System.err.println("setPendingIntentTemplate");
 
-//            PendingIntent viewPendingIntent = PendingIntent.getActivity(context, 0, viewIntent, 0);
-//            remoteViews.setPendingIntentTemplate(R.id.stackWidgetView, viewPendingIntent);
+            //updates widget
             appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
 
         }
@@ -70,23 +70,25 @@ public class WidgetProvider extends AppWidgetProvider {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
         //calls onUpdate method if refresh button is pressed
-        if (intent.getAction().equals(REFRESH_BUTTON)) {
+        if (intent.getAction().equals(REFRESH_ACTION)) {
+
+            System.err.println("REFRESH ACTION IS IDENTIFIED");
 
             ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
 
+            onDeleted(context, appWidgetManager.getAppWidgetIds(nessWidget));
             onUpdate(context, appWidgetManager, appWidgetManager.getAppWidgetIds(nessWidget));
 
         }
 
         //opens browser if widget item is clicked
         if(intent.getAction().equals(OPEN_BROWSER)) {
-            int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID);
-            String url = intent.getStringExtra(OPEN_BROWSER);
-            System.err.println("URL IN ONRECIEVE:" + url);
-            intent.setData(Uri.parse(url));
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-            remoteViews.setOnClickPendingIntent(R.id.stack_view, pendingIntent);
+
+            String uri = intent.getStringExtra(EXTRA_ITEM);
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setData(Uri.parse(uri));
+            context.startActivity(browserIntent);
 
         }
 

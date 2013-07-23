@@ -104,12 +104,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             //Set fill-intent to fill in the pending intent template in WidgetProvider
             Bundle extras = new Bundle();
-            extras.putString(WidgetProvider.OPEN_BROWSER, "https://likeness.com" + entity.nessUri);
+            extras.putString(WidgetProvider.EXTRA_ITEM, "https://likeness.com" + entity.nessUri);
 
             Intent fillInIntent = new Intent();
             fillInIntent.putExtras(extras);
             remoteViews.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
-            System.err.println("setOnClickFillInIntent "+ entity.nessUri);
+
         }
 
         return remoteViews;
