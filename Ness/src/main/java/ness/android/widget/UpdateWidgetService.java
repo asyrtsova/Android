@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 
 /**
@@ -103,10 +104,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             DecimalFormat timeFormat = new DecimalFormat("00");
             DecimalFormat distanceFormat = new DecimalFormat("#0.0");
 
+            String prefix = prefixGenerator();
+
             remoteViews.setTextViewText(R.id.text_title, entity.name);
-            remoteViews.setTextViewText(R.id.text_entity_info, entity.address + " | " + distanceFormat.format(distance) + " mi");
+            remoteViews.setTextViewText(R.id.text_entity_info, prefix + entity.address + " | " + distanceFormat.format(distance) + " mi");
             remoteViews.setTextViewText(R.id.text_user_location, userAddress);
-            remoteViews.setTextViewText(R.id.text_time, timeDay + ", " + timeHour + ":" + timeFormat.format(timeMinute));
+            remoteViews.setTextViewText(R.id.text_time, defineMealtime() + " " + timeDay + ", " + timeHour + ":" + timeFormat.format(timeMinute));
 
             remoteViews.setImageViewBitmap(R.id.image_view, imgBitmap);
 
@@ -128,6 +131,33 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         return remoteViews;
     }
+
+    private String prefixGenerator() {
+        String[] prefixes = {"Head to: ", "Try: ", "Eat at: ", "Go to: ", "Don't miss: ", "People love: ", "What's hot: ", "Grab a bite: ", "Top pick: "};
+        Random rand = new Random();
+        int choice = rand.nextInt(prefixes.length);
+        return prefixes[choice];
+    }
+
+    private String defineMealtime() {
+        String mealtime = "Mealtime";
+        if (0 <= timeHour && timeHour < 5) {
+            mealtime = "Late Night";
+        } else if (5 <= timeHour && timeHour <= 10) {
+            if (timeHour == 10 && timeMinute < 30) {
+                mealtime = "Breakfast";
+            } else if (timeHour == 10 && timeMinute >= 30) {
+                mealtime = "Lunch";
+            }
+        } else if (11 <= timeHour && timeHour < 14) {
+            mealtime = "Lunch";
+        } else if (14 <= timeHour && timeHour < 16) {
+            mealtime = "Snack";
+        } else if (16 <= timeHour) {
+            mealtime = "Dinner";
+        }
+            return mealtime;
+}
 
     private double getDistanceFromEntity(Entity entity) {
         float[] results = new float[1];
@@ -172,12 +202,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
 
-
     private void getTime() {
         Calendar cal = Calendar.getInstance();
 
         int timeDayNum = cal.get(Calendar.DAY_OF_WEEK);
-        timeHour = cal.get(Calendar.HOUR);
+        timeHour = cal.get(Calendar.HOUR_OF_DAY);
         timeMinute = cal.get(Calendar.MINUTE);
 
         if (timeHour == 0) {
@@ -283,9 +312,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                     JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
                     urlImg = coverphoto.getString(TAG_PHOTO_URL);
 
-                //create Entity object with these variables and add it to an array
-                Entity objEntity = new Entity(name, city, type, price, uriWeb, urlImg, entLat, entLon);
-                entityArray.add(objEntity);
+                    //create Entity object with these variables and add it to an array
+                    Entity objEntity = new Entity(name, city, type, price, uriWeb, urlImg, entLat, entLon);
+                    entityArray.add(objEntity);
                 }
             }
         } catch (Exception e) {
