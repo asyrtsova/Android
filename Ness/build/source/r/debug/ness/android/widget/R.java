@@ -24,21 +24,28 @@ public final class R {
         public static final int color_white=0x7f060003;
     }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
-        public static final int location_pin=0x7f020001;
-        public static final int widget_background=0x7f020002;
+        public static final int brandmark=0x7f020000;
+        public static final int clock_img=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
+        public static final int location_pin=0x7f020003;
+        public static final int refresh_downstate=0x7f020004;
+        public static final int refresh_upstate=0x7f020005;
+        public static final int widget_background=0x7f020006;
     }
     public static final class id {
-        public static final int action_forgot_password=0x7f0a000a;
-        public static final int empty_view=0x7f0a0009;
+        public static final int action_forgot_password=0x7f0a000d;
+        public static final int empty_view=0x7f0a000c;
+        public static final int image_brandmark=0x7f0a000a;
+        public static final int image_clock=0x7f0a0007;
         public static final int image_location=0x7f0a0002;
         public static final int image_view=0x7f0a0001;
         public static final int item_layout=0x7f0a0000;
         public static final int refresh_button=0x7f0a0004;
-        public static final int stack_view=0x7f0a0008;
-        public static final int text_entity_info=0x7f0a0007;
-        public static final int text_time=0x7f0a0005;
-        public static final int text_title=0x7f0a0006;
+        public static final int stack_view=0x7f0a000b;
+        public static final int text_debug_refresh=0x7f0a0005;
+        public static final int text_entity_info=0x7f0a0009;
+        public static final int text_time=0x7f0a0006;
+        public static final int text_title=0x7f0a0008;
         public static final int text_user_location=0x7f0a0003;
     }
     public static final class layout {

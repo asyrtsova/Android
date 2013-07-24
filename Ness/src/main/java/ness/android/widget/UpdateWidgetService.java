@@ -109,7 +109,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             remoteViews.setTextViewText(R.id.text_title, entity.name);
             remoteViews.setTextViewText(R.id.text_entity_info, prefix + entity.address + " | " + distanceFormat.format(distance) + " mi");
             remoteViews.setTextViewText(R.id.text_user_location, userAddress);
-            remoteViews.setTextViewText(R.id.text_time, defineMealtime() + " " + timeDay + ", " + timeHour + ":" + timeFormat.format(timeMinute));
+            remoteViews.setTextViewText(R.id.text_time, defineMealtime());
+            remoteViews.setTextViewText(R.id.text_debug_refresh, timeHour + ":" + timeFormat.format(timeMinute));
 
             remoteViews.setImageViewBitmap(R.id.image_view, imgBitmap);
 
