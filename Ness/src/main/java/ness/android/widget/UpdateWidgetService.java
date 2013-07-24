@@ -57,7 +57,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public static final String TAG_NAME = "name";
     public static final String TAG_ADDRESS = "address";
     public static final String TAG_CITY = "city";
-    public static final String TAG_STATE = "state";
     public static final String TAG_TYPES = "types";
     public static final String TAG_PRICE_LEVEL = "priceLevel";
     public static final String TAG_NESS_URI = "nessWebUri";
@@ -93,9 +92,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public RemoteViews getViewAt(int position) {
 
         RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
+        Entity entity = entityArray.get(position);
 
         if (position <= getCount()) {
-            Entity entity = entityArray.get(position);
 
             double distance = getDistanceFromEntity(entity);
 
@@ -270,7 +269,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
                 JSONObject add = ent.getJSONObject(TAG_ADDRESS);
                 String city = add.getString(TAG_CITY);
-                String state = add.getString(TAG_STATE);
 
                 JSONObject loc = ent.getJSONObject(TAG_LOCATION);
                 double entLat = loc.getDouble(TAG_LATITUDE);
@@ -284,12 +282,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 if (ent.has(TAG_COVERPHOTO)) {
                     JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
                     urlImg = coverphoto.getString(TAG_PHOTO_URL);
-                }
 
                 //create Entity object with these variables and add it to an array
-                Entity objEntity = new Entity(name, city + ", " + state, type, price, uriWeb, urlImg, entLat, entLon);
+                Entity objEntity = new Entity(name, city, type, price, uriWeb, urlImg, entLat, entLon);
                 entityArray.add(objEntity);
-
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

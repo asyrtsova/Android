@@ -67,7 +67,7 @@
             android:layout_toRightOf="@id/image_view"
             android:textColor="@color/color_darkgray"
             android:paddingLeft="3dp"
-            android:textSize="12dp"/>
+            android:textSize="10dp"/>
 
 
 </RelativeLayout>
