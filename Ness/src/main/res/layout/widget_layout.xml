@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="fill_parent"
-             android:layout_height="fill_parent">
+             android:layout_height="fill_parent"
+             android:id="@+id/widget_layout">
     <StackView xmlns:android="http://schemas.android.com/apk/res/android"
                android:id="@+id/stack_view"
                android:layout_width="match_parent"
@@ -19,4 +20,16 @@
               android:textStyle="bold"
               android:text="Empty or loading..."
               android:textSize="20dp" />
-</FrameLayout>
+    <ImageButton
+            android:id="@+id/refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:textSize="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="6dp"
+            android:src="@drawable/refresh_upstate"
+            android:scaleType="center"
+            android:background="@null"/>
+</RelativeLayout>

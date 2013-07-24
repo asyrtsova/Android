@@ -21,29 +21,18 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+
+        //sets up refresh button
+        Intent refreshIntent = new Intent(context, WidgetProvider.class);
+        refreshIntent.setAction(WidgetProvider.REFRESH_ACTION);
+        PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(context, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        remoteViews.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
+
+
         for (int i = 0; i < appWidgetIds.length; ++i) {
 
-            Intent serviceIntent = new Intent(context, UpdateWidgetService.class);
-
-            //add app widget ID to the intent extras
-            serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
-            //embed extras
-            serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
-
-            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-
-            //set up the RemoteViews object to use a RemoteViews adapter, which connects to
-            // a RemoveViewsService through the specified intent. This populates the data.
-            remoteViews.setRemoteAdapter(appWidgetIds[i], R.id.stack_view, serviceIntent);
-
-            //sets an empty view to be displayed when the collection has no items
-            remoteViews.setEmptyView(R.id.stack_view, R.id.empty_view);
-
-            //sets up refresh button
-            Intent refreshIntent = new Intent(context, WidgetProvider.class);
-            refreshIntent.setAction(WidgetProvider.REFRESH_ACTION);
-            PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(context, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            remoteViews.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
+            remoteViews = getService(remoteViews, context, appWidgetIds[i]);
 
             //sets up pending intent template, allowing individualized behavior for each item
             Intent intentSetUris = new Intent(context, WidgetProvider.class);
@@ -62,21 +51,51 @@ public class WidgetProvider extends AppWidgetProvider {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
 
+    private RemoteViews getService(RemoteViews remoteViews, Context context, int appWidgetId) {
+        Intent serviceIntent = new Intent(context, UpdateWidgetService.class);
+
+        //add app widget ID to the intent extras
+        serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        //embed extras
+        serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
+
+        //set up the RemoteViews object to use a RemoteViews adapter, which connects to
+        // a RemoveViewsService through the specified intent. This populates the data.
+        remoteViews.setRemoteAdapter(appWidgetId, R.id.stack_view, serviceIntent);
+
+        //sets an empty view to be displayed when the collection has no items
+        remoteViews.setEmptyView(R.id.stack_view, R.id.empty_view);
+
+        return remoteViews;
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         System.err.println("onRecieve:"+intent.getAction());
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.id.item_layout);
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
 
         //calls onUpdate method if refresh button is pressed
         if (intent.getAction().equals(REFRESH_ACTION)) {
 
+            appWidgetManager.updateAppWidget(appWidgetIds, null);
+            remoteViews.setImageViewResource(R.id.refresh_button, R.drawable.refresh_downstate);
+
+            for (int i = 0; i < appWidgetIds.length; ++i) {
+
             System.err.println("REFRESH ACTION IS IDENTIFIED");
 
-            ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
+            remoteViews = getService(remoteViews, context, appWidgetIds[i]);
 
-            onDeleted(context, appWidgetManager.getAppWidgetIds(nessWidget));
-            onUpdate(context, appWidgetManager, appWidgetManager.getAppWidgetIds(nessWidget));
+                remoteViews.setImageViewResource(R.id.refresh_button, R.drawable.refresh_upstate);
+
+                appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+
+            }
+
+            onUpdate(context,appWidgetManager,appWidgetIds);
 
         }
 

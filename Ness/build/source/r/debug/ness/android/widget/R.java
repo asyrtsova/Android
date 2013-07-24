@@ -33,20 +33,17 @@ public final class R {
         public static final int widget_background=0x7f020006;
     }
     public static final class id {
-        public static final int action_forgot_password=0x7f0a000d;
-        public static final int empty_view=0x7f0a000c;
-        public static final int image_brandmark=0x7f0a000a;
-        public static final int image_clock=0x7f0a0007;
-        public static final int image_location=0x7f0a0002;
+        public static final int action_forgot_password=0x7f0a000a;
+        public static final int empty_view=0x7f0a0008;
+        public static final int image_brandmark=0x7f0a0003;
         public static final int image_view=0x7f0a0001;
         public static final int item_layout=0x7f0a0000;
-        public static final int refresh_button=0x7f0a0004;
-        public static final int stack_view=0x7f0a000b;
-        public static final int text_debug_refresh=0x7f0a0005;
-        public static final int text_entity_info=0x7f0a0009;
-        public static final int text_time=0x7f0a0006;
-        public static final int text_title=0x7f0a0008;
-        public static final int text_user_location=0x7f0a0003;
+        public static final int refresh_button=0x7f0a0009;
+        public static final int stack_view=0x7f0a0007;
+        public static final int text_debug_refresh=0x7f0a0002;
+        public static final int text_entity_info=0x7f0a0004;
+        public static final int text_title=0x7f0a0005;
+        public static final int widget_layout=0x7f0a0006;
     }
     public static final class layout {
         public static final int item_layout=0x7f030000;

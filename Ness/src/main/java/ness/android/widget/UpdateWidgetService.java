@@ -1,5 +1,6 @@
 package ness.android.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -106,11 +107,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             String prefix = prefixGenerator();
 
-            remoteViews.setTextViewText(R.id.text_title, entity.name);
-            remoteViews.setTextViewText(R.id.text_entity_info, prefix + entity.address + " | " + distanceFormat.format(distance) + " mi");
-            remoteViews.setTextViewText(R.id.text_user_location, userAddress);
-            remoteViews.setTextViewText(R.id.text_time, defineMealtime());
-            remoteViews.setTextViewText(R.id.text_debug_refresh, timeHour + ":" + timeFormat.format(timeMinute));
+            remoteViews.setTextViewText(R.id.text_title, "Dish Name Will Go Here");
+            remoteViews.setTextViewText(R.id.text_entity_info, entity.name + " | " + distanceFormat.format(distance) + " mi");
 
             remoteViews.setImageViewBitmap(R.id.image_view, imgBitmap);
 
@@ -121,10 +119,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             Intent fillInIntent = new Intent();
             fillInIntent.putExtras(extras);
             remoteViews.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
-
-            //Set fill-intent for refresh button
-            Intent refreshIntent = new Intent();
-            remoteViews.setOnClickFillInIntent(R.id.refresh_button, refreshIntent);
 
             System.err.println("INSIDE GET VIEW AT for" + entity.name);
 
