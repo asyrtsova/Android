@@ -2,6 +2,7 @@ package ness.android.widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -93,10 +94,20 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public RemoteViews getViewAt(int position) {
 
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+        ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
+
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
+        RemoteViews remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.widget_layout);
         RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
-        Entity entity = entityArray.get(position);
+
+        if(entityArray == null) {
+            remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.widget_empty);
+        }
 
         if (position <= getCount()) {
+
+            Entity entity = entityArray.get(position);
 
             double distance = getDistanceFromEntity(entity);
 
@@ -107,8 +118,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             String prefix = prefixGenerator();
 
-            remoteViews.setTextViewText(R.id.text_title, "Dish Name Will Go Here");
-            remoteViews.setTextViewText(R.id.text_entity_info, entity.name + " | " + distanceFormat.format(distance) + " mi");
+            remoteViews.setTextViewText(R.id.text_dish, "Dish Name Here");
+            remoteViews.setTextViewText(R.id.text_entity, entity.name);
+            remoteViews.setTextViewText(R.id.text_distance, " | " + distanceFormat.format(distance) + " mi");
 
             remoteViews.setImageViewBitmap(R.id.image_view, imgBitmap);
 
@@ -123,6 +135,10 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             System.err.println("INSIDE GET VIEW AT for" + entity.name);
 
         }
+
+
+        remoteViewWidget.setImageViewResource(R.id.refresh_button, R.drawable.refresh_upstate);
+        appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
 
         return remoteViews;
     }
@@ -310,6 +326,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                     //create Entity object with these variables and add it to an array
                     Entity objEntity = new Entity(name, city, type, price, uriWeb, urlImg, entLat, entLon);
                     entityArray.add(objEntity);
+
+                    System.err.println("HERES AN ENTITY:" + entityArray.get(0).toString());
                 }
             }
         } catch (Exception e) {

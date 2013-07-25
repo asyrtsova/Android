@@ -10,6 +10,7 @@
                 android:orientation="vertical"
                 android:gravity="center"
         >
+
     <ImageView
             android:id="@+id/image_view"
             android:layout_width="wrap_content"
@@ -17,17 +18,6 @@
             android:layout_alignParentLeft="true"
             android:adjustViewBounds="true"
             android:padding="0dp"/>
-
-    <TextView
-            android:id="@+id/text_debug_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:textColor="@color/color_lightgray"
-            android:padding="6dp"
-            android:textSize="6dp"
-            android:textStyle="bold"/>
 
     <ImageView
             android:id="@+id/image_brandmark"
@@ -40,28 +30,46 @@
             />
 
     <TextView
-            android:id="@+id/text_entity_info"
-            android:layout_width="180dp"
+            android:id="@+id/text_entity"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/image_brandmark"
             android:textColor="@color/color_darkgray"
             android:paddingLeft="5dp"
             android:paddingTop="4dp"
-            android:paddingRight="5dp"
-            android:textSize="12dp"/>
+            android:maxWidth="120dp"
+            android:paddingRight="0dp"
+            android:textSize="14dp"
+            android:ellipsize="end"
+            android:singleLine="true"/>
 
     <TextView
-            android:id="@+id/text_title"
+            android:id="@+id/text_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/text_entity"
+            android:textColor="@color/color_darkgray"
+            android:paddingLeft="0dp"
+            android:paddingTop="4dp"
+            android:paddingRight="5dp"
+            android:textSize="14dp"
+            android:singleLine="true"/>
+
+    <TextView
+            android:id="@+id/text_dish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/image_view"
-            android:layout_below="@id/text_entity_info"
+            android:layout_below="@id/text_entity"
             android:textColor="@color/color_red"
             android:paddingLeft="5dp"
             android:paddingBottom="4dp"
-            android:textSize="16dp"
-            android:text=""/>
+            android:textSize="20dp"
+            android:ellipsize="end"
+            android:singleLine="true"/>
 
 
 

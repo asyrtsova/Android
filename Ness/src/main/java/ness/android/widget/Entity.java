@@ -49,7 +49,7 @@ public class Entity {
 
     public String toString() {
 
-        allInfo = name + "\n" + address + ", " + priceSign + "\n";
+        allInfo = name + "\n" + address + ", " + priceSign + "\n" + nessUri + "\n" + photoUri + "\n" + latitude + "\n" + longitude;
 
         return allInfo;
     }
