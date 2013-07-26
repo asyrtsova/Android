@@ -1,6 +1,5 @@
 package ness.android.widget;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,9 +9,7 @@ import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -47,7 +44,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public GPSTracker gps;
     public double longitude;
     public double latitude;
-    public String gpsStatus;
+    public boolean gpsStatusOn;
 
     public String userAddress;
 
@@ -101,10 +98,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         RemoteViews remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.widget_layout);
         RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
-        if(entityArray == null) {
-            remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.widget_empty);
-        }
-
         if (position <= getCount()) {
 
             Entity entity = entityArray.get(position);
@@ -136,6 +129,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         }
 
+        if (!gpsStatusOn){
+            remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.layout_gps_off);
+        }
 
         remoteViewWidget.setImageViewResource(R.id.refresh_button, R.drawable.refresh_upstate);
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
@@ -265,11 +261,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             latitude = gps.getLatitude();
             longitude = gps.getLongitude();
 
-            gpsStatus = "GPS/network is enabled!";
+            gpsStatusOn = true;
 
         } else {
 
-            gpsStatus = "GPS/network not enabled.";
+            gpsStatusOn = false;
         }
 
         if (latitude < 0.01) {
@@ -333,6 +329,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public static Bitmap getBitmapFromURL(String src) {

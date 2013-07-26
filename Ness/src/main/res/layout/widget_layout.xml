@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="fill_parent"
-             android:layout_height="fill_parent"
-             android:id="@+id/widget_layout">
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/widget_layout">
+
     <StackView xmlns:android="http://schemas.android.com/apk/res/android"
                android:id="@+id/stack_view"
                android:layout_width="match_parent"
@@ -11,15 +12,36 @@
                android:gravity="center"
                android:loopViews="false"
                android:translationX="1sp"/>
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/empty_view"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:gravity="center"
-              android:textColor="@color/color_white"
-              android:textStyle="bold"
-              android:text="Empty or loading..."
-              android:textSize="20dp" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/empty_layout"
+                    android:background="@drawable/lozenge">
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:id="@+id/empty_text"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_centerInParent="true"
+                  android:textColor="@color/color_lightgray"
+                  android:textStyle="bold"
+                  android:text="Empty or loading..."
+                  android:textSize="20dp"/>
+
+        <ImageView
+                android:id="@+id/image_brandmark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/brandmark"
+                android:layout_above="@id/empty_text"
+                android:layout_centerHorizontal="true"
+                android:paddingTop="5dp"
+                android:paddingLeft="4dp"
+                />
+
+    </RelativeLayout>
+
     <ImageButton
             android:id="@+id/refresh_button"
             android:layout_width="wrap_content"
@@ -28,7 +50,7 @@
             android:layout_alignParentBottom="true"
             android:textSize="8dp"
             android:paddingRight="8dp"
-            android:paddingTop="6dp"
+            android:paddingBottom="8dp"
             android:src="@drawable/refresh_upstate"
             android:scaleType="center"
             android:background="@null"/>

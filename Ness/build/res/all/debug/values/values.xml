@@ -13,7 +13,7 @@
     <color name="color_darkgray">#ff404040</color>
     <color name="color_lightgray">#dd888888</color>
     <color name="color_red">#dd36b4e3</color>
-    <color name="color_white">#ddffffff</color>
+    <color name="color_white">#ddc6c6c6</color>
     <!-- From: file:/Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/values/strings_activity_login.xml -->
     <string name="action_forgot_password">Recover lost password</string>
     <string name="action_sign_in_register"><b>Sign in</b> or register</string>

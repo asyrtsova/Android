@@ -8,7 +8,7 @@
         android:color="#ffffffff" />
 
     <stroke
-            android:color="#aaffffff"
+            android:color="#ddffffff"
             android:width="5dp"/>
 
 </shape><!-- From: file:/Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/drawable-xhdpi/widget_background.xml -->

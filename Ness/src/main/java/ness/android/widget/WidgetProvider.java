@@ -44,7 +44,7 @@ public class WidgetProvider extends AppWidgetProvider {
             remoteViews.setRemoteAdapter(appWidgetIds[i], R.id.stack_view, serviceIntent);
 
             //sets an empty view to be displayed when the collection has no items
-            remoteViews.setEmptyView(R.id.stack_view, R.id.empty_view);
+            remoteViews.setEmptyView(R.id.stack_view, R.id.empty_layout);
 
             //sets up pending intent template, allowing individualized behavior for each item
             Intent intentSetUris = new Intent(context, WidgetProvider.class);
