@@ -38,7 +38,7 @@
             android:textColor="@color/color_darkgray"
             android:paddingLeft="5dp"
             android:paddingTop="4dp"
-            android:maxWidth="120dp"
+            android:maxWidth="110dp"
             android:paddingRight="0dp"
             android:textSize="14dp"
             android:ellipsize="end"

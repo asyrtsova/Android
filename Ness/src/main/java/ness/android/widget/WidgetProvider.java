@@ -76,8 +76,6 @@ public class WidgetProvider extends AppWidgetProvider {
 
             remoteViews.setImageViewResource(R.id.refresh_button, R.drawable.refresh_downstate);
 
-            appWidgetManager.updateAppWidget(appWidgetIds, null);
-
             for (int i = 0; i < appWidgetIds.length; ++i) {
 
                 System.err.println("REFRESH ACTION IS IDENTIFIED");

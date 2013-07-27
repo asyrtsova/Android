@@ -48,17 +48,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public String userAddress;
 
-    public String timeDay;
-    public int timeHour;
-    public int timeMinute;
-
     //tags used to parse JSON
     public static final String TAG_ENTITIES = "entities";
     public static final String TAG_NAME = "name";
-    public static final String TAG_ADDRESS = "address";
-    public static final String TAG_CITY = "city";
-    public static final String TAG_TYPES = "types";
-    public static final String TAG_PRICE_LEVEL = "priceLevel";
     public static final String TAG_NESS_URI = "nessWebUri";
     public static final String TAG_COVERPHOTO = "coverPhoto";
     public static final String TAG_PHOTO_URL = "url";
@@ -106,10 +98,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             Bitmap imgBitmap = getBitmapFromURL(entity.photoUri);
 
-            DecimalFormat timeFormat = new DecimalFormat("00");
             DecimalFormat distanceFormat = new DecimalFormat("#0.0");
-
-            String prefix = prefixGenerator();
 
             remoteViews.setTextViewText(R.id.text_dish, "Dish Name Here");
             remoteViews.setTextViewText(R.id.text_entity, entity.name);
@@ -138,33 +127,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         return remoteViews;
     }
-
-    private String prefixGenerator() {
-        String[] prefixes = {"Head to: ", "Try: ", "Eat at: ", "Go to: ", "Don't miss: ", "People love: ", "What's hot: ", "Grab a bite: ", "Top pick: "};
-        Random rand = new Random();
-        int choice = rand.nextInt(prefixes.length);
-        return prefixes[choice];
-    }
-
-    private String defineMealtime() {
-        String mealtime = "Mealtime";
-        if (0 <= timeHour && timeHour < 5) {
-            mealtime = "Late Night";
-        } else if (5 <= timeHour && timeHour <= 10) {
-            if (timeHour == 10 && timeMinute < 30) {
-                mealtime = "Breakfast";
-            } else if (timeHour == 10 && timeMinute >= 30) {
-                mealtime = "Lunch";
-            }
-        } else if (11 <= timeHour && timeHour < 14) {
-            mealtime = "Lunch";
-        } else if (14 <= timeHour && timeHour < 16) {
-            mealtime = "Snack";
-        } else if (16 <= timeHour) {
-            mealtime = "Dinner";
-        }
-            return mealtime;
-}
 
     private double getDistanceFromEntity(Entity entity) {
         float[] results = new float[1];
@@ -204,38 +166,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             getGPSlocation();
             getOnlineData();
             getUserAddress();
-            getTime();
         }
-    }
-
-
-    private void getTime() {
-        Calendar cal = Calendar.getInstance();
-
-        int timeDayNum = cal.get(Calendar.DAY_OF_WEEK);
-        timeHour = cal.get(Calendar.HOUR_OF_DAY);
-        timeMinute = cal.get(Calendar.MINUTE);
-
-        if (timeHour == 0) {
-            timeHour = 12;
-        }
-
-        if (timeDayNum == 1) {
-            timeDay = "Sun";
-        } else if (timeDayNum == 2) {
-            timeDay = "Mon";
-        } else if (timeDayNum == 3) {
-            timeDay = "Tues";
-        } else if (timeDayNum == 4) {
-            timeDay = "Wed";
-        } else if (timeDayNum == 5) {
-            timeDay = "Thurs";
-        } else if (timeDayNum == 6) {
-            timeDay = "Fri";
-        } else if (timeDayNum == 7) {
-            timeDay = "Sat";
-        }
-
     }
 
     private void getUserAddress() {
@@ -299,31 +230,22 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 // Storing each json item in variable
                 String name = ent.getString(TAG_NAME);
 
-                String price = ent.has(TAG_PRICE_LEVEL) ? ent.getString(TAG_PRICE_LEVEL) : "-1";
-
                 String uriWeb = ent.getString(TAG_NESS_URI);
-
-                JSONObject add = ent.getJSONObject(TAG_ADDRESS);
-                String city = add.getString(TAG_CITY);
 
                 JSONObject loc = ent.getJSONObject(TAG_LOCATION);
                 double entLat = loc.getDouble(TAG_LATITUDE);
                 double entLon = loc.getDouble(TAG_LONGITUDE);
 
-                JSONArray entityTypes = ent.getJSONArray(TAG_TYPES);
-                String type = entityTypes.getString(0);
-
                 String urlImg = null;
-                Bitmap imgBitmap = null;
                 if (ent.has(TAG_COVERPHOTO)) {
                     JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
                     urlImg = coverphoto.getString(TAG_PHOTO_URL);
 
                     //create Entity object with these variables and add it to an array
-                    Entity objEntity = new Entity(name, city, type, price, uriWeb, urlImg, entLat, entLon);
+                    Entity objEntity = new Entity(name, uriWeb, urlImg, entLat, entLon);
                     entityArray.add(objEntity);
 
-                    System.err.println("HERES AN ENTITY:" + entityArray.get(0).toString());
+                    System.err.println("ENT:" + objEntity.name );
                 }
             }
         } catch (Exception e) {
