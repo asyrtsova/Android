@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.View;
 import android.widget.RemoteViews;
 
 /**
@@ -22,6 +23,9 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+
+        remoteViews.setViewVisibility(R.id.refresh_button, View.INVISIBLE);
+        remoteViews.setViewVisibility(R.id.progress_bar, View.VISIBLE);
 
         //sets up refresh button
         Intent refreshIntent = new Intent(context, WidgetProvider.class);
@@ -74,7 +78,7 @@ public class WidgetProvider extends AppWidgetProvider {
         //calls onUpdate method if refresh button is pressed
         if (intent.getAction().equals(REFRESH_ACTION)) {
 
-            remoteViews.setImageViewResource(R.id.refresh_button, R.drawable.refresh_downstate);
+            appWidgetManager.updateAppWidget(appWidgetIds, null);
 
             for (int i = 0; i < appWidgetIds.length; ++i) {
 

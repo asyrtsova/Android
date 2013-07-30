@@ -11,6 +11,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -122,7 +123,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.layout_gps_off);
         }
 
-        remoteViewWidget.setImageViewResource(R.id.refresh_button, R.drawable.refresh_upstate);
+        remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+        remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
 
         return remoteViews;
@@ -168,6 +170,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             getUserAddress();
         }
     }
+
 
     private void getUserAddress() {
 

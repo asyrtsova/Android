@@ -34,7 +34,7 @@ public final class R {
         public static final int widget_background=0x7f020007;
     }
     public static final class id {
-        public static final int action_forgot_password=0x7f0a000d;
+        public static final int action_forgot_password=0x7f0a000e;
         public static final int empty_layout=0x7f0a000a;
         public static final int empty_text=0x7f0a000b;
         public static final int gps_status=0x7f0a0006;
@@ -42,6 +42,7 @@ public final class R {
         public static final int image_brandmark=0x7f0a0002;
         public static final int image_view=0x7f0a0001;
         public static final int item_layout=0x7f0a0000;
+        public static final int progress_bar=0x7f0a000d;
         public static final int refresh_button=0x7f0a000c;
         public static final int stack_view=0x7f0a0009;
         public static final int text_dish=0x7f0a0005;
