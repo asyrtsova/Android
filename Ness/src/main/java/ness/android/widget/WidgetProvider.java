@@ -24,9 +24,6 @@ public class WidgetProvider extends AppWidgetProvider {
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
-        remoteViews.setViewVisibility(R.id.refresh_button, View.INVISIBLE);
-        remoteViews.setViewVisibility(R.id.progress_bar, View.VISIBLE);
-
         //sets up refresh button
         Intent refreshIntent = new Intent(context, WidgetProvider.class);
         refreshIntent.setAction(WidgetProvider.REFRESH_ACTION);
@@ -36,7 +33,10 @@ public class WidgetProvider extends AppWidgetProvider {
 
         for (int i = 0; i < appWidgetIds.length; ++i) {
 
+            System.err.println("INSIDE ONUPDATE FORLOOP");
+
             Intent serviceIntent = new Intent(context, UpdateWidgetService.class);
+            context.startService(serviceIntent);
 
             //add app widget ID to the intent extras
             serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
@@ -77,6 +77,9 @@ public class WidgetProvider extends AppWidgetProvider {
 
         //calls onUpdate method if refresh button is pressed
         if (intent.getAction().equals(REFRESH_ACTION)) {
+
+            remoteViews.setViewVisibility(R.id.refresh_button, View.INVISIBLE);
+            remoteViews.setViewVisibility(R.id.progress_bar, View.VISIBLE);
 
             appWidgetManager.updateAppWidget(appWidgetIds, null);
 

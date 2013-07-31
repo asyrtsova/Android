@@ -24,9 +24,10 @@
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_centerInParent="true"
+                  android:gravity="center"
                   android:textColor="@color/color_lightgray"
                   android:textStyle="bold"
-                  android:text="Empty or loading..."
+                  android:text="Loading..."
                   android:textSize="20dp"/>
 
         <ImageView
@@ -52,8 +53,8 @@
             android:paddingBottom="12dp"
             android:src="@drawable/refresh_upstate"
             android:scaleType="center"
-            android:background="@null"
             android:visibility="invisible"
+            android:background="@null"
             />
 
     <ProgressBar

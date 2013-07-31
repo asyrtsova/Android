@@ -24,10 +24,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 
 /**
@@ -54,7 +52,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public static final String TAG_NAME = "name";
     public static final String TAG_NESS_URI = "nessWebUri";
     public static final String TAG_COVERPHOTO = "coverPhoto";
-    public static final String TAG_PHOTO_URL = "url";
+    public static final String TAG_THUMBNAIL_URL = "thumbnail";
     public static final String TAG_LOCATION = "location";
     public static final String TAG_LATITUDE = "lat";
     public static final String TAG_LONGITUDE = "lon";
@@ -78,8 +76,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onCreate() {
-
-
     }
 
     public RemoteViews getViewAt(int position) {
@@ -119,12 +115,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         }
 
-        if (!gpsStatusOn){
-            remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.layout_gps_off);
-        }
-
         remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
         remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
 
         return remoteViews;
@@ -164,11 +157,33 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onDataSetChanged() {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
+        if (Looper.myLooper() != Looper.getMainLooper() && entityArray.size() == 0) {
             getGPSlocation();
             getOnlineData();
             getUserAddress();
         }
+
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+        ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
+
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
+        RemoteViews remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.widget_layout);
+
+        if (entityArray.size() == 0) {
+            remoteViewWidget.setTextViewText(R.id.empty_text, "The list is empty.");
+
+            remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+            remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+        }
+
+        if (!gpsStatusOn) {
+            remoteViewWidget.setTextViewText(R.id.empty_text, "Location services are off.");
+
+            remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+            remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+        }
+
+        appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
     }
 
 
@@ -242,13 +257,13 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 String urlImg = null;
                 if (ent.has(TAG_COVERPHOTO)) {
                     JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
-                    urlImg = coverphoto.getString(TAG_PHOTO_URL);
+                    urlImg = coverphoto.getString(TAG_THUMBNAIL_URL);
 
                     //create Entity object with these variables and add it to an array
                     Entity objEntity = new Entity(name, uriWeb, urlImg, entLat, entLon);
                     entityArray.add(objEntity);
 
-                    System.err.println("ENT:" + objEntity.name );
+                    System.err.println("ENT:" + objEntity.name);
                 }
             }
         } catch (Exception e) {

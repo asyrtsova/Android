@@ -16,7 +16,8 @@
         <receiver
                 android:icon="@drawable/ic_launcher"
                 android:label="A Ness Widget"
-                android:name="WidgetProvider">
+                android:name="WidgetProvider"
+                android:exported = "true">
 
                 <intent-filter>
                         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
