@@ -27,7 +27,7 @@
                   android:gravity="center"
                   android:textColor="@color/color_lightgray"
                   android:textStyle="bold"
-                  android:text="Loading..."
+                  android:text="   Loading..."
                   android:textSize="20dp"/>
 
         <ImageView

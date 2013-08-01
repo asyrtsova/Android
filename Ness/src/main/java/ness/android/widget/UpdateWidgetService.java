@@ -1,5 +1,6 @@
 package ness.android.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -76,6 +77,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onCreate() {
+        System.err.println("SERVICE IS CREATED");
     }
 
     public RemoteViews getViewAt(int position) {
@@ -157,6 +159,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onDataSetChanged() {
+        entityArray.clear();
         if (Looper.myLooper() != Looper.getMainLooper() && entityArray.size() == 0) {
             getGPSlocation();
             getOnlineData();
@@ -182,6 +185,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
             remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
         }
+
+        //sets up refresh button
+        Intent refreshIntent = new Intent(mContext, WidgetProvider.class);
+        refreshIntent.setAction(WidgetProvider.REFRESH_ACTION);
+        PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(mContext, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        remoteViewWidget.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
 
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
     }
@@ -258,13 +267,16 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 if (ent.has(TAG_COVERPHOTO)) {
                     JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
                     urlImg = coverphoto.getString(TAG_THUMBNAIL_URL);
+                }
 
+                if (urlImg != null) {
                     //create Entity object with these variables and add it to an array
                     Entity objEntity = new Entity(name, uriWeb, urlImg, entLat, entLon);
                     entityArray.add(objEntity);
 
                     System.err.println("ENT:" + objEntity.name);
                 }
+
             }
         } catch (Exception e) {
             e.printStackTrace();

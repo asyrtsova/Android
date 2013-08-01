@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ness.android.widget"
-    android:versionCode="1"
-    android:versionName="1.0" >
+          package="ness.android.widget"
+          android:versionCode="1"
+          android:versionName="1.0">
 
     <uses-sdk
-        android:minSdkVersion="11"
-        android:targetSdkVersion="16" />
+            android:minSdkVersion="11"
+            android:targetSdkVersion="16"/>
 
     <application
-        android:allowBackup="true"
+            android:allowBackup="true"
             android:debuggable="true">
 
         //the AppWidgetProvider
@@ -17,29 +17,31 @@
                 android:icon="@drawable/ic_launcher"
                 android:label="A Ness Widget"
                 android:name="WidgetProvider"
-                android:exported = "true">
+                android:exported="true">
 
-                <intent-filter>
-                        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                        <action android:name="ness.android.widget.REFRESH_ACTION" />
-                        <action android:name="ness.android.widget.OPEN_BROWSER" />
-                </intent-filter>
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="ness.android.widget.REFRESH_ACTION"/>
+                <action android:name="ness.android.widget.OPEN_BROWSER"/>
+                <action android:name="AUTO_UPDATE"/>
+            </intent-filter>
 
-                //specifies the widget provider info
-                <meta-data
+            //specifies the widget provider info
+            <meta-data
                     android:name="android.appwidget.provider"
-                    android:resource="@xml/widget_info"    />
+                    android:resource="@xml/widget_info"/>
 
-            </receiver>
+        </receiver>
 
         //the service gets data and serves the RemoteViews to the collection widget
-        <service android:name=".UpdateWidgetService"
-                 android:permission="android.permission.BIND_REMOTEVIEWS"
-                 android:exported="false" ></service>
+        <service
+                android:name=".UpdateWidgetService"
+                android:permission="android.permission.BIND_REMOTEVIEWS"
+                android:exported="false"></service>
 
     </application>
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>
