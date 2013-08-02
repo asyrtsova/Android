@@ -24,12 +24,14 @@ public class WidgetProvider extends AppWidgetProvider {
     public static final String AUTO_UPDATE = "AUTO_UPDATE";
 
     private final int ALARM_ID = 0;
-    private final int INTERVAL_MILLIS = 120000;
+    private final int INTERVAL_MILLIS = 20000;
+
+    public static RemoteViews remoteViews;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+        remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
         for (int i = 0; i < appWidgetIds.length; ++i) {
 
@@ -79,8 +81,6 @@ public class WidgetProvider extends AppWidgetProvider {
 
             for (int i = 0; i < appWidgetIds.length; ++i) {
 
-                RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-
                 System.err.println("REFRESH ACTION IS IDENTIFIED");
 
                 remoteViews.setViewVisibility(R.id.refresh_button, View.INVISIBLE);
@@ -89,12 +89,8 @@ public class WidgetProvider extends AppWidgetProvider {
                 appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
 
             }
-
             startAlarm(context);
-
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.stack_view);
-
-            onUpdate(context, appWidgetManager, appWidgetIds);
 
         }
 
@@ -110,12 +106,6 @@ public class WidgetProvider extends AppWidgetProvider {
         }
 
         super.onReceive(context, intent);
-    }
-
-    protected PendingIntent getPendingSelfIntent(Context context, String action) {
-        Intent intent = new Intent(context, getClass());
-        intent.setAction(action);
-        return PendingIntent.getBroadcast(context, 0, intent, 0);
     }
 
     @Override

@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.View;
@@ -86,10 +87,28 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
 
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
-        RemoteViews remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.widget_layout);
+        RemoteViews remoteViewWidget = WidgetProvider.remoteViews;
+
+        Intent serviceIntent = new Intent(mContext, UpdateWidgetService.class);
+
+        //embed extras
+        serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
+
+        //sets an empty view to be displayed when the collection has no items
+        remoteViewWidget.setEmptyView(R.id.stack_view, R.id.empty_layout);
+
+        //sets up pending intent template, allowing individualized behavior for each item
+        Intent intentSetUris = new Intent(mContext, WidgetProvider.class);
+        intentSetUris.setAction(WidgetProvider.OPEN_BROWSER);
+        intentSetUris.setData(Uri.parse(intentSetUris.toUri(Intent.URI_INTENT_SCHEME)));
+
+        PendingIntent browserPendingIntent = PendingIntent.getBroadcast(mContext, 0, intentSetUris, PendingIntent.FLAG_UPDATE_CURRENT);
+        remoteViewWidget.setPendingIntentTemplate(R.id.stack_view, browserPendingIntent);
         RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
         if (position <= getCount()) {
+
+            System.err.println("SIZE OF ENTITYARRAY:" + entityArray.size() + ", POSITION/INDEX:" + position);
 
             Entity entity = entityArray.get(position);
 
@@ -170,7 +189,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
 
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
-        RemoteViews remoteViewWidget = new RemoteViews(mContext.getPackageName(), R.layout.widget_layout);
+        RemoteViews remoteViewWidget = WidgetProvider.remoteViews;
 
         if (entityArray.size() == 0) {
             remoteViewWidget.setTextViewText(R.id.empty_text, "The list is empty.");
