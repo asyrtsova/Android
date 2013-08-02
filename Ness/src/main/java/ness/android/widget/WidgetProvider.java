@@ -24,7 +24,7 @@ public class WidgetProvider extends AppWidgetProvider {
     public static final String AUTO_UPDATE = "AUTO_UPDATE";
 
     private final int ALARM_ID = 0;
-    private final int INTERVAL_MILLIS = 20000;
+    private final int INTERVAL_MILLIS = 360000;
 
     public static RemoteViews remoteViews;
 
@@ -115,9 +115,15 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
-        // TODO: alarm should be stopped only if all widgets has been disabled
 
-        stopAlarm(context);
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
+
+        //only stop alarm if last widget is disabled
+        if (appWidgetIds.length == 1) {
+            stopAlarm(context);
+        }
         super.onDisabled(context);
     }
 
@@ -147,7 +153,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         // RTC does not wake the device up
-        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), INTERVAL_MILLIS, pendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), INTERVAL_MILLIS, pendingIntent);
     }
 
 

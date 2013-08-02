@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
  */
 public class Entity {
 
+    //FOR DEBUGGING
     String allInfo;
 
     String name = "name";
@@ -28,6 +29,7 @@ public class Entity {
 
     public String toString() {
 
+        //FOR DEBUGGING: prints info of entity.
         allInfo = name + "\n" + nessUri + "\n" + photoUri + "\n" + latitude + "\n" + longitude;
 
         return allInfo;

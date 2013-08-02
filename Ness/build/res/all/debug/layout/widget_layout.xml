@@ -3,32 +3,30 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:id="@+id/widget_layout">
+                android:id="@+id/widget_layout"  >
 
     <StackView xmlns:android="http://schemas.android.com/apk/res/android"
                android:id="@+id/stack_view"
                android:layout_width="match_parent"
                android:layout_height="match_parent"
-               android:gravity="center"
                android:loopViews="false"
-               android:translationX="1sp"/>
+               android:translationX="1sp"  />
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/empty_layout"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:id="@+id/empty_layout"
-                    android:background="@drawable/lozenge">
+                    android:background="@drawable/lozenge"  >
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                   android:id="@+id/empty_text"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_centerInParent="true"
-                  android:gravity="center"
                   android:textColor="@color/color_lightgray"
                   android:textStyle="bold"
                   android:text="   Loading..."
-                  android:textSize="20dp"/>
+                  android:textSize="20dp"  />
 
         <ImageView
                 android:id="@+id/image_brandmark"
@@ -38,8 +36,7 @@
                 android:layout_above="@id/empty_text"
                 android:layout_centerHorizontal="true"
                 android:paddingTop="5dp"
-                android:paddingLeft="4dp"
-                />
+                android:paddingLeft="4dp"  />
 
     </RelativeLayout>
 
@@ -54,20 +51,20 @@
             android:src="@drawable/refresh_upstate"
             android:scaleType="center"
             android:visibility="invisible"
-            android:background="@null"
-            />
+            android:background="@null"  />
 
     <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="22dip"
-            android:maxHeight="22dip"
+            android:minHeight="22dp"
+            android:minWidth="22dp"
+            android:maxHeight="22dp"
+            android:maxWidth="22dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             style="@android:style/Widget.ProgressBar.Inverse"
-            android:paddingRight="0dp"
-            android:paddingBottom="12dp"
-        />
+            android:paddingRight="12dp"
+            android:paddingBottom="12dp"  />
 
 </RelativeLayout><!-- From: file:/Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/layout/widget_layout.xml -->
