@@ -24,33 +24,41 @@ public final class R {
         public static final int color_white=0x7f060003;
     }
     public static final class drawable {
-        public static final int brandmark=0x7f020000;
-        public static final int clock_img=0x7f020001;
-        public static final int ic_launcher=0x7f020002;
-        public static final int location_pin=0x7f020003;
-        public static final int lozenge=0x7f020004;
-        public static final int refresh_downstate=0x7f020005;
-        public static final int refresh_upstate=0x7f020006;
-        public static final int widget_background=0x7f020007;
+        public static final int blank_image=0x7f020000;
+        public static final int brandmark=0x7f020001;
+        public static final int brandmark_large=0x7f020002;
+        public static final int brandmark_logo=0x7f020003;
+        public static final int clock_img=0x7f020004;
+        public static final int ic_launcher=0x7f020005;
+        public static final int location_pin=0x7f020006;
+        public static final int lozenge=0x7f020007;
+        public static final int refresh_downstate=0x7f020008;
+        public static final int refresh_upstate=0x7f020009;
+        public static final int screenshot=0x7f02000a;
+        public static final int widget_background=0x7f02000b;
     }
     public static final class id {
-        public static final int action_forgot_password=0x7f0a000c;
-        public static final int empty_layout=0x7f0a0008;
-        public static final int empty_text=0x7f0a0009;
+        public static final int action_forgot_password=0x7f0a000f;
+        public static final int empty_layout=0x7f0a000b;
+        public static final int empty_text=0x7f0a000c;
         public static final int image_brandmark=0x7f0a0002;
         public static final int image_view=0x7f0a0001;
         public static final int item_layout=0x7f0a0000;
-        public static final int progress_bar=0x7f0a000b;
-        public static final int refresh_button=0x7f0a000a;
-        public static final int stack_view=0x7f0a0007;
+        public static final int loading_brandmark=0x7f0a0008;
+        public static final int loading_image=0x7f0a0007;
+        public static final int loading_item_layout=0x7f0a0006;
+        public static final int progress_bar=0x7f0a000e;
+        public static final int refresh_button=0x7f0a000d;
+        public static final int stack_view=0x7f0a000a;
         public static final int text_dish=0x7f0a0005;
         public static final int text_distance=0x7f0a0004;
         public static final int text_entity=0x7f0a0003;
-        public static final int widget_layout=0x7f0a0006;
+        public static final int widget_layout=0x7f0a0009;
     }
     public static final class layout {
         public static final int item_layout=0x7f030000;
-        public static final int widget_layout=0x7f030001;
+        public static final int loading_item_layout=0x7f030001;
+        public static final int widget_layout=0x7f030002;
     }
     public static final class menu {
         public static final int login=0x7f090000;

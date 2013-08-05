@@ -8,30 +8,33 @@ import android.graphics.drawable.Drawable;
  */
 public class Entity {
 
-    //FOR DEBUGGING
-    String allInfo;
-
     String name = "name";
     String nessUri = "nessUri";
     String photoUri = "imgUri";
+    String topDish = "topDish";
+    String dishPhotoUrl = "dishPhotoUrl";
     double latitude;
     double longitude;
 
-    public Entity (String sName, String uriWeb, String imgUri, double entLatitude, double entLongitude) {
+    public Entity (String sName, String uriWeb, String imgUri, String sTopDish, String sDishUrl, double entLatitude, double entLongitude) {
 
         name = sName;
         nessUri = uriWeb;
         photoUri = imgUri;
+        topDish = sTopDish;
+        dishPhotoUrl = sDishUrl;
         latitude = entLatitude;
         longitude = entLongitude;
 
+        System.err.println("TOP DISH IMG LARGE:" + dishPhotoUrl);
+
+        dishPhotoUrl = getSmallerImg(dishPhotoUrl);
+
+        System.err.println("TOP DISH IMG SMALL:" + dishPhotoUrl);
     }
 
-    public String toString() {
-
-        //FOR DEBUGGING: prints info of entity.
-        allInfo = name + "\n" + nessUri + "\n" + photoUri + "\n" + latitude + "\n" + longitude;
-
-        return allInfo;
+    private String getSmallerImg(String initialUrl) {
+        return initialUrl.substring(0, initialUrl.length() - 5) + "5.jpg";
     }
+
 }

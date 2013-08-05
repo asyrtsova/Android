@@ -58,6 +58,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public static final String TAG_LOCATION = "location";
     public static final String TAG_LATITUDE = "lat";
     public static final String TAG_LONGITUDE = "lon";
+    public static final String TAG_TOP_MENU_ITEM = "topMenuItem";
+    public static final String TAG_TOP_MENU_ITEM_PHOTO = "photo";
 
 
     public String url;
@@ -114,11 +116,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             double distance = getDistanceFromEntity(entity);
 
-            Bitmap imgBitmap = getBitmapFromURL(entity.photoUri);
+            Bitmap imgBitmap = getBitmapFromURL(entity.dishPhotoUrl);
 
             DecimalFormat distanceFormat = new DecimalFormat("#0.0");
 
-            remoteViews.setTextViewText(R.id.text_dish, "Dish Name Here");
+            remoteViews.setTextViewText(R.id.text_dish, entity.topDish);
             remoteViews.setTextViewText(R.id.text_entity, entity.name);
             remoteViews.setTextViewText(R.id.text_distance, " | " + distanceFormat.format(distance) + " mi");
 
@@ -162,11 +164,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public RemoteViews getLoadingView() {
-        return null;
+        System.err.println("GETS LOADING VIEW");
+        return new RemoteViews(mContext.getPackageName(), R.layout.loading_item_layout);
     }
 
     public int getViewTypeCount() {
-        return 1;
+        return 2;
     }
 
     public long getItemId(int position) {
@@ -256,9 +259,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private void getOnlineData() {
 
-        final DecimalFormat df = new DecimalFormat("#.000");
-
-        url = "https://api-v3-p.trumpet.io/json-api/v3/search?rangeQuantity=&localtime=&rangeUnit=&maxResults=20&queryOptions=&queryString=&q=&price=&location=&sortBy=BEST&lat=" + df.format(latitude) + "&lon=" + df.format(longitude) + "&userRequested=true&quickrate=false&showPermClosed=false";
+        url = "https://api-v3-s.trumpet.io/json-api/v3/search?options=HIDE_CLOSED_PLACES&lat=" + latitude + "&sortBy=BEST&location=Los%20Altos,CA&lon=" + longitude + "&category=restaurant&localtime=2012-07-20T16%3A40-0700&userId=00000000-000e-c25d-c000-000000026810&magicScreen=MENU";
 
         //Creating JSON Parser instance
         JSONParser jParser = new JSONParser();
@@ -282,6 +283,10 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 double entLat = loc.getDouble(TAG_LATITUDE);
                 double entLon = loc.getDouble(TAG_LONGITUDE);
 
+                JSONObject topItem = ent.getJSONObject(TAG_TOP_MENU_ITEM);
+                String topItemName = topItem.getString(TAG_NAME);
+                String topItemPhoto = topItem.getString(TAG_TOP_MENU_ITEM_PHOTO);
+
                 String urlImg = null;
                 if (ent.has(TAG_COVERPHOTO)) {
                     JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
@@ -290,7 +295,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
                 if (urlImg != null) {
                     //create Entity object with these variables and add it to an array
-                    Entity objEntity = new Entity(name, uriWeb, urlImg, entLat, entLon);
+                    Entity objEntity = new Entity(name, uriWeb, urlImg, topItemName, topItemPhoto, entLat, entLon);
                     entityArray.add(objEntity);
 
                     System.err.println("ENT:" + objEntity.name);

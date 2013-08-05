@@ -18,25 +18,30 @@
                     android:layout_height="fill_parent"
                     android:background="@drawable/lozenge"  >
 
+        <ImageView
+                android:id="@+id/image_brandmark"
+                android:src="@drawable/brandmark_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:paddingTop="5dp"
+                android:paddingBottom="0dp"/>
+
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                   android:id="@+id/empty_text"
+                  android:layout_alignParentBottom="true"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_centerInParent="true"
+                  android:paddingTop="0dp"
+                  android:paddingBottom="10dp"
                   android:textColor="@color/color_lightgray"
                   android:textStyle="bold"
-                  android:text="   Loading..."
-                  android:textSize="20dp"  />
+                  android:text="Finding top restaurants near you..."
+                  android:textSize="15dp"  />
 
-        <ImageView
-                android:id="@+id/image_brandmark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/brandmark"
-                android:layout_above="@id/empty_text"
-                android:layout_centerHorizontal="true"
-                android:paddingTop="5dp"
-                android:paddingLeft="4dp"  />
+
 
     </RelativeLayout>
 
@@ -46,8 +51,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:paddingRight="12dp"
-            android:paddingBottom="12dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
             android:src="@drawable/refresh_upstate"
             android:scaleType="center"
             android:visibility="invisible"
@@ -64,7 +69,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             style="@android:style/Widget.ProgressBar.Inverse"
-            android:paddingRight="12dp"
-            android:paddingBottom="12dp"  />
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"  />
 
 </RelativeLayout><!-- From: file:/Users/administrator/AndroidStudioProjects/NessProject/Ness/src/main/res/layout/widget_layout.xml -->
