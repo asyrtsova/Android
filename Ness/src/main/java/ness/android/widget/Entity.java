@@ -26,11 +26,7 @@ public class Entity {
         latitude = entLatitude;
         longitude = entLongitude;
 
-        System.err.println("TOP DISH IMG LARGE:" + dishPhotoUrl);
-
         dishPhotoUrl = getSmallerImg(dishPhotoUrl);
-
-        System.err.println("TOP DISH IMG SMALL:" + dishPhotoUrl);
     }
 
     private String getSmallerImg(String initialUrl) {

@@ -108,7 +108,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         remoteViewWidget.setPendingIntentTemplate(R.id.stack_view, browserPendingIntent);
         RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
-        if (position <= getCount()) {
+        if (position <= getCount() && entityArray.size() != 0) {
 
             System.err.println("SIZE OF ENTITYARRAY:" + entityArray.size() + ", POSITION/INDEX:" + position);
 
@@ -116,7 +116,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             double distance = getDistanceFromEntity(entity);
 
-            Bitmap imgBitmap = getBitmapFromURL(entity.dishPhotoUrl);
+            Bitmap imgBitmap = getBitmapFromURL(entity.dishPhotoUrl, entity.photoUri);
 
             DecimalFormat distanceFormat = new DecimalFormat("#0.0");
 
@@ -181,11 +181,16 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onDataSetChanged() {
+
         entityArray.clear();
+
         if (Looper.myLooper() != Looper.getMainLooper() && entityArray.size() == 0) {
             getGPSlocation();
-            getOnlineData();
-            getUserAddress();
+
+            if (gpsStatusOn) {
+                getOnlineData();
+                getUserAddress();
+            }
         }
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
@@ -202,7 +207,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         }
 
         if (!gpsStatusOn) {
-            remoteViewWidget.setTextViewText(R.id.empty_text, "Location services are off.");
+            remoteViewWidget.setTextViewText(R.id.empty_text, "Please turn on location services.");
 
             remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
             remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
@@ -248,11 +253,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             gpsStatusOn = false;
         }
 
-        if (latitude < 0.01) {
-            latitude = 40.766;
-            longitude = -73.975;
-            ;
-        }
+//        if (latitude < 0.01) {
+//            latitude = 40.766;
+//            longitude = -73.975;
+//            ;
+//        }
 
     }
 
@@ -308,18 +313,29 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     }
 
-    public static Bitmap getBitmapFromURL(String src) {
+    public static Bitmap getBitmapFromURL(String src, String backupSrc) {
         try {
             URL url = new URL(src);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.connect();
             InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
+            Bitmap myBitmap1 = BitmapFactory.decodeStream(input);
+            return myBitmap1;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            try {
+                URL url = new URL(backupSrc);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap2 = BitmapFactory.decodeStream(input);
+                return myBitmap2;
+            } catch (IOException exception) {
+                exception.printStackTrace();
+                return null;
+            }
         }
     }
 
