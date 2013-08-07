@@ -10,12 +10,13 @@
 
     <application
             android:allowBackup="true"
-            android:debuggable="true">
+            android:debuggable="true"
+            android:label="A Ness Recommendations">
 
         //the AppWidgetProvider
         <receiver
                 android:icon="@drawable/ic_launcher"
-                android:label="A Ness Widget"
+                android:label="A Ness Recommendations"
                 android:name="WidgetProvider"
                 android:exported="true">
 

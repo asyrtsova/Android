@@ -24,8 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -47,8 +50,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public double latitude;
     public boolean gpsStatusOn;
 
-    public String userAddress;
-
     //tags used to parse JSON
     public static final String TAG_ENTITIES = "entities";
     public static final String TAG_NAME = "name";
@@ -61,21 +62,17 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public static final String TAG_TOP_MENU_ITEM = "topMenuItem";
     public static final String TAG_TOP_MENU_ITEM_PHOTO = "photo";
 
-
-    public String url;
+    public String queryUrl;
     public JSONArray entities = null;
-
-    public Intent mIntent;
-
     public ArrayList<Entity> entityArray = new ArrayList<Entity>();
 
+    public Intent mIntent;
     public Context mContext;
     public int mAppWidgetId;
 
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
         mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-
         mIntent = intent;
     }
 
@@ -116,7 +113,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             double distance = getDistanceFromEntity(entity);
 
-            Bitmap imgBitmap = getBitmapFromURL(entity.dishPhotoUrl, entity.photoUri);
+            Bitmap bitmapImg = getBitmapFromURL(entity.dishPhotoUrl, entity.photoUri);
+            Bitmap bitmapBlank = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.blank_image);
 
             DecimalFormat distanceFormat = new DecimalFormat("#0.0");
 
@@ -124,7 +122,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             remoteViews.setTextViewText(R.id.text_entity, entity.name);
             remoteViews.setTextViewText(R.id.text_distance, " | " + distanceFormat.format(distance) + " mi");
 
-            remoteViews.setImageViewBitmap(R.id.image_view, imgBitmap);
+            if(bitmapImg != null) {
+                remoteViews.setImageViewBitmap(R.id.image_view, bitmapImg);
+            } else {
+                remoteViews.setImageViewBitmap(R.id.image_view, bitmapBlank);
+            }
 
             //Set fill-intent to fill in the pending intent template in WidgetProvider
             Bundle extras = new Bundle();
@@ -156,6 +158,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
 
     public void onDestroy() {
+        System.err.println("SERVICE DESTROYED" + WidgetProvider.remoteViews);
         entityArray.clear();
     }
 
@@ -189,9 +192,10 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             if (gpsStatusOn) {
                 getOnlineData();
-                getUserAddress();
             }
         }
+
+        System.err.println("ENTITY ARRAY SIZE:" + entityArray.size());
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
         ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
@@ -222,22 +226,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
     }
 
-
-    private void getUserAddress() {
-
-        Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
-        try {
-            List<Address> userAddressList = geocoder.getFromLocation(latitude, longitude, 1);
-            if (userAddressList.size() > 0 && userAddressList.get(0).getAddressLine(1) != null) {
-                userAddress = userAddressList.get(0).getAddressLine(1);
-                userAddress = userAddress.substring(0, userAddress.length() - 6);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     private void getGPSlocation() {
 
         gps = new GPSTracker(mContext);
@@ -253,25 +241,27 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             gpsStatusOn = false;
         }
 
-//        if (latitude < 0.01) {
+        //for emulator use
+//            gpsStatusOn = true;
 //            latitude = 40.766;
 //            longitude = -73.975;
-//            ;
-//        }
 
     }
 
 
     private void getOnlineData() {
 
-        url = "https://api-v3-s.trumpet.io/json-api/v3/search?options=HIDE_CLOSED_PLACES&lat=" + latitude + "&sortBy=BEST&location=Los%20Altos,CA&lon=" + longitude + "&category=restaurant&localtime=2012-07-20T16%3A40-0700&userId=00000000-000e-c25d-c000-000000026810&magicScreen=MENU";
+        String urlTime = getTime();
 
+        queryUrl = "https://api-v3-s.trumpet.io/json-api/v3/search?options=HIDE_CLOSED_PLACES&lat=" + latitude + "&sortBy=BEST&lon=" + longitude + "&category=restaurant&localtime=" + urlTime + "&userId=00000000-000e-c25d-c000-000000026810&magicScreen=MENU";
+
+        System.err.println("getOnlineData remoteViews:" + WidgetProvider.remoteViews);
         //Creating JSON Parser instance
         JSONParser jParser = new JSONParser();
 
         try {
             // getting JSON string from URL
-            JSONObject json = jParser.getJSONFromUrl(url);
+            JSONObject json = jParser.getJSONFromUrl(queryUrl);
             // Getting Array of Places
             entities = json.getJSONArray(TAG_ENTITIES);
 
@@ -311,6 +301,20 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             e.printStackTrace();
         }
 
+    }
+
+    private String getTime() {
+        Date date = new Date();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
+        String formattedDate = dateFormat.format(date);
+
+        try {
+            String encodedDate = URLEncoder.encode(formattedDate, "utf-8");
+            return encodedDate;
+        } catch (Exception e) {
+            return "2013-08-06T15%3A24-0700";
+        }
     }
 
     public static Bitmap getBitmapFromURL(String src, String backupSrc) {

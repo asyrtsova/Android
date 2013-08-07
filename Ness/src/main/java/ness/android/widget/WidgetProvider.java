@@ -20,25 +20,26 @@ public class WidgetProvider extends AppWidgetProvider {
 
     public static final String REFRESH_ACTION = "ness.android.widget.REFRESH_ACTION";
     public static final String OPEN_BROWSER = "ness.android.widget.OPEN_BROWSER";
+    public static final String AUTO_UPDATE = "ness.android.widget.AUTO_UPDATE";
+
     public static final String EXTRA_ITEM = "ness.android.widget.EXTRA_ITEM";
-    public static final String AUTO_UPDATE = "AUTO_UPDATE";
 
     private final int ALARM_ID = 0;
-    private final int INTERVAL_MILLIS = 360000;
+    private final int INTERVAL_MILLIS = 1000 * 60 * 10; // auto update every 10 min
 
     public static RemoteViews remoteViews;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
-        remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+        //initialize remoteViews in case onUpdate is called before onReceive
+        if(remoteViews == null) {
+            remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+        }
 
         for (int i = 0; i < appWidgetIds.length; ++i) {
 
-            System.err.println("INSIDE PROVIDER ONUPDATE FORLOOP");
-
             Intent serviceIntent = new Intent(context, UpdateWidgetService.class);
-            context.startService(serviceIntent);
 
             //add app widget ID to the intent extras
             serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
@@ -71,17 +72,22 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        System.err.println("onRecieve:" + intent.getAction());
+
+        System.err.println("AppWidget onRecieve: " + intent.getAction());
+
+        //initialize remoteViews in case onReceive is called before onUpdate
+        if(remoteViews == null) {
+            remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+        }
+
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
 
-        //calls onUpdate method if refresh button is pressed
+        //updates widget if refresh button is pressed or alarm manager triggered
         if (intent.getAction().equals(REFRESH_ACTION) || intent.getAction().equals(AUTO_UPDATE)) {
 
             for (int i = 0; i < appWidgetIds.length; ++i) {
-
-                System.err.println("REFRESH ACTION IS IDENTIFIED");
 
                 remoteViews.setViewVisibility(R.id.refresh_button, View.INVISIBLE);
                 remoteViews.setViewVisibility(R.id.progress_bar, View.VISIBLE);
@@ -89,12 +95,11 @@ public class WidgetProvider extends AppWidgetProvider {
                 appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
 
             }
-            startAlarm(context);
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.stack_view);
 
         }
 
-        //opens browser if widget item is clicked
+        //opens browser to Ness entity page if item view is clicked
         if (intent.getAction().equals(OPEN_BROWSER)) {
 
             String uri = intent.getStringExtra(EXTRA_ITEM);
@@ -109,8 +114,9 @@ public class WidgetProvider extends AppWidgetProvider {
     }
 
     @Override
-    public void onDeleted(Context context, int[] appWidgetIds) {
-        super.onDeleted(context, appWidgetIds);
+    public void onEnabled(Context context) {
+        startAlarm(context);
+        super.onEnabled(context);
     }
 
     @Override
@@ -121,16 +127,16 @@ public class WidgetProvider extends AppWidgetProvider {
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
 
         //only stop alarm if last widget is disabled
-        if (appWidgetIds.length == 1) {
+        if (appWidgetIds.length <= 1) {
             stopAlarm(context);
         }
+
         super.onDisabled(context);
     }
 
     @Override
-    public void onEnabled(Context context) {
-        startAlarm(context);
-        super.onEnabled(context);
+    public void onDeleted(Context context, int[] appWidgetIds) {
+        super.onDeleted(context, appWidgetIds);
     }
 
     public void stopAlarm(Context context)
@@ -140,6 +146,9 @@ public class WidgetProvider extends AppWidgetProvider {
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
+
+        System.err.println("ALARM STOPPED.");
+
     }
 
 
@@ -152,9 +161,12 @@ public class WidgetProvider extends AppWidgetProvider {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, ALARM_ID, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        // RTC does not wake the device up
-        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), INTERVAL_MILLIS, pendingIntent);
-    }
 
+        // RTC does not wake the device up to perform update
+        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), INTERVAL_MILLIS, pendingIntent);
+
+        System.err.println("ALARM STARTED");
+
+    }
 
 }
