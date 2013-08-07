@@ -53,7 +53,7 @@ public class WidgetProvider extends AppWidgetProvider {
             //sets an empty view to be displayed when the collection has no items
             remoteViews.setEmptyView(R.id.stack_view, R.id.empty_layout);
 
-            //sets up pending intent template, allowing individualized behavior for each item
+            //sets up pending intent template, allowing individualized behavior for each item (open browser to entity's specific page)
             Intent intentSetUris = new Intent(context, WidgetProvider.class);
             intentSetUris.setAction(WidgetProvider.OPEN_BROWSER);
             intentSetUris.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
@@ -61,6 +61,12 @@ public class WidgetProvider extends AppWidgetProvider {
 
             PendingIntent browserPendingIntent = PendingIntent.getBroadcast(context, 0, intentSetUris, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setPendingIntentTemplate(R.id.stack_view, browserPendingIntent);
+
+            //sets up refresh button
+            Intent refreshIntent = new Intent(context, WidgetProvider.class);
+            refreshIntent.setAction(WidgetProvider.REFRESH_ACTION);
+            PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(context, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            remoteViews.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
 
             //updates widget
             appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);

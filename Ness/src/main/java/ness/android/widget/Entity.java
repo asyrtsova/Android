@@ -8,11 +8,12 @@ import android.graphics.drawable.Drawable;
  */
 public class Entity {
 
-    String name = "name";
-    String nessUri = "nessUri";
-    String photoUri = "imgUri";
-    String topDish = "topDish";
-    String dishPhotoUrl = "dishPhotoUrl";
+    String name;
+    String nessUri;
+    String photoUri;
+    String topDish;
+    String dishPhotoUrl;
+
     double latitude;
     double longitude;
 
@@ -29,6 +30,7 @@ public class Entity {
         dishPhotoUrl = getSmallerImg(dishPhotoUrl);
     }
 
+    //5 instead of 7 at end of Ness' img Url gets smaller image
     private String getSmallerImg(String initialUrl) {
         return initialUrl.substring(0, initialUrl.length() - 5) + "5.jpg";
     }

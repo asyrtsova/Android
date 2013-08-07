@@ -70,6 +70,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public Context mContext;
     public int mAppWidgetId;
 
+    private AppWidgetManager appWidgetManager;
+    private ComponentName nessWidget;
+    private int[] appWidgetIds;
+    private RemoteViews remoteViewWidget;
+
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
         mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -78,32 +83,18 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public void onCreate() {
         System.err.println("SERVICE IS CREATED");
+
+        appWidgetManager = AppWidgetManager.getInstance(mContext);
+        nessWidget = new ComponentName(mContext, WidgetProvider.class);
+        appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
+
+        remoteViewWidget = WidgetProvider.remoteViews;
+
     }
 
     public RemoteViews getViewAt(int position) {
 
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
-        ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
-
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
-        RemoteViews remoteViewWidget = WidgetProvider.remoteViews;
-
-        Intent serviceIntent = new Intent(mContext, UpdateWidgetService.class);
-
-        //embed extras
-        serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
-
-        //sets an empty view to be displayed when the collection has no items
-        remoteViewWidget.setEmptyView(R.id.stack_view, R.id.empty_layout);
-
-        //sets up pending intent template, allowing individualized behavior for each item
-        Intent intentSetUris = new Intent(mContext, WidgetProvider.class);
-        intentSetUris.setAction(WidgetProvider.OPEN_BROWSER);
-        intentSetUris.setData(Uri.parse(intentSetUris.toUri(Intent.URI_INTENT_SCHEME)));
-
-        PendingIntent browserPendingIntent = PendingIntent.getBroadcast(mContext, 0, intentSetUris, PendingIntent.FLAG_UPDATE_CURRENT);
-        remoteViewWidget.setPendingIntentTemplate(R.id.stack_view, browserPendingIntent);
-        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
+        RemoteViews remoteViewsItem = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
         if (position <= getCount() && entityArray.size() != 0) {
 
@@ -118,14 +109,14 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             DecimalFormat distanceFormat = new DecimalFormat("#0.0");
 
-            remoteViews.setTextViewText(R.id.text_dish, entity.topDish);
-            remoteViews.setTextViewText(R.id.text_entity, entity.name);
-            remoteViews.setTextViewText(R.id.text_distance, " | " + distanceFormat.format(distance) + " mi");
+            remoteViewsItem.setTextViewText(R.id.text_dish, entity.topDish);
+            remoteViewsItem.setTextViewText(R.id.text_entity, entity.name);
+            remoteViewsItem.setTextViewText(R.id.text_distance, " | " + distanceFormat.format(distance) + " mi");
 
             if(bitmapImg != null) {
-                remoteViews.setImageViewBitmap(R.id.image_view, bitmapImg);
+                remoteViewsItem.setImageViewBitmap(R.id.image_view, bitmapImg);
             } else {
-                remoteViews.setImageViewBitmap(R.id.image_view, bitmapBlank);
+                remoteViewsItem.setImageViewBitmap(R.id.image_view, bitmapBlank);
             }
 
             //Set fill-intent to fill in the pending intent template in WidgetProvider
@@ -134,7 +125,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             Intent fillInIntent = new Intent();
             fillInIntent.putExtras(extras);
-            remoteViews.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
+            remoteViewsItem.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
 
             System.err.println("INSIDE GET VIEW AT for" + entity.name);
 
@@ -145,42 +136,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
 
-        return remoteViews;
-    }
-
-    private double getDistanceFromEntity(Entity entity) {
-        float[] results = new float[1];
-        Location.distanceBetween(latitude, longitude, entity.latitude, entity.longitude, results);
-        //get distance in miles from distance in meters
-        double distanceInMiles = results[0] * 0.000621371;
-        return distanceInMiles;
-    }
-
-
-    public void onDestroy() {
-        System.err.println("SERVICE DESTROYED" + WidgetProvider.remoteViews);
-        entityArray.clear();
-    }
-
-    public int getCount() {
-        return entityArray.size();
+        return remoteViewsItem;
     }
 
     public RemoteViews getLoadingView() {
         System.err.println("GETS LOADING VIEW");
         return new RemoteViews(mContext.getPackageName(), R.layout.loading_item_layout);
-    }
-
-    public int getViewTypeCount() {
-        return 2;
-    }
-
-    public long getItemId(int position) {
-        return position;
-    }
-
-    public boolean hasStableIds() {
-        return true;
     }
 
     public void onDataSetChanged() {
@@ -197,12 +158,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         System.err.println("ENTITY ARRAY SIZE:" + entityArray.size());
 
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
-        ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
-
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
-        RemoteViews remoteViewWidget = WidgetProvider.remoteViews;
-
+        //Sets up empty list view
         if (entityArray.size() == 0) {
             remoteViewWidget.setTextViewText(R.id.empty_text, "The list is empty.");
 
@@ -210,6 +166,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
         }
 
+        //sets up no location sevices view
         if (!gpsStatusOn) {
             remoteViewWidget.setTextViewText(R.id.empty_text, "Please turn on location services.");
 
@@ -217,45 +174,37 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
         }
 
-        //sets up refresh button
-        Intent refreshIntent = new Intent(mContext, WidgetProvider.class);
-        refreshIntent.setAction(WidgetProvider.REFRESH_ACTION);
-        PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(mContext, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        remoteViewWidget.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
-
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
     }
 
-    private void getGPSlocation() {
-
-        gps = new GPSTracker(mContext);
-
-        if (gps.canGetLocation()) {
-            latitude = gps.getLatitude();
-            longitude = gps.getLongitude();
-
-            gpsStatusOn = true;
-
-        } else {
-
-            gpsStatusOn = false;
-        }
-
-        //for emulator use
-//            gpsStatusOn = true;
-//            latitude = 40.766;
-//            longitude = -73.975;
-
+    public int getCount() {
+        return entityArray.size();
     }
 
+    public int getViewTypeCount() {
+        return 2;
+    }
 
+    public long getItemId(int position) {
+        return position;
+    }
+
+    public boolean hasStableIds() {
+        return true;
+    }
+
+    public void onDestroy() {
+        System.err.println("SERVICE DESTROYED" + remoteViewWidget);
+        entityArray.clear();
+    }
+
+    //parses Ness restful API to get entity data
     private void getOnlineData() {
 
         String urlTime = getTime();
 
         queryUrl = "https://api-v3-s.trumpet.io/json-api/v3/search?options=HIDE_CLOSED_PLACES&lat=" + latitude + "&sortBy=BEST&lon=" + longitude + "&category=restaurant&localtime=" + urlTime + "&userId=00000000-000e-c25d-c000-000000026810&magicScreen=MENU";
 
-        System.err.println("getOnlineData remoteViews:" + WidgetProvider.remoteViews);
         //Creating JSON Parser instance
         JSONParser jParser = new JSONParser();
 
@@ -266,10 +215,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             entities = json.getJSONArray(TAG_ENTITIES);
 
             // looping through all entities
+            System.err.println("ENTITIES LENGTH:" + entities.length());
             for (int i = 0; i < entities.length(); i++) {
                 JSONObject ent = entities.getJSONObject(i);
 
                 // Storing each json item in variable
+
                 String name = ent.getString(TAG_NAME);
 
                 String uriWeb = ent.getString(TAG_NESS_URI);
@@ -280,7 +231,10 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
                 JSONObject topItem = ent.getJSONObject(TAG_TOP_MENU_ITEM);
                 String topItemName = topItem.getString(TAG_NAME);
-                String topItemPhoto = topItem.getString(TAG_TOP_MENU_ITEM_PHOTO);
+                String topItemPhoto = null;
+                if (topItem.has(TAG_TOP_MENU_ITEM_PHOTO)) {
+                    topItemPhoto = topItem.getString(TAG_TOP_MENU_ITEM_PHOTO);
+                }
 
                 String urlImg = null;
                 if (ent.has(TAG_COVERPHOTO)) {
@@ -288,8 +242,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                     urlImg = coverphoto.getString(TAG_THUMBNAIL_URL);
                 }
 
-                if (urlImg != null) {
-                    //create Entity object with these variables and add it to an array
+                //if entity has a photo, create Entity object with these variables and add it to an array
+                if (urlImg != null || topItemPhoto != null) {
                     Entity objEntity = new Entity(name, uriWeb, urlImg, topItemName, topItemPhoto, entLat, entLon);
                     entityArray.add(objEntity);
 
@@ -303,6 +257,37 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     }
 
+
+    private double getDistanceFromEntity(Entity entity) {
+        float[] distanceInMeters = new float[1];
+        Location.distanceBetween(latitude, longitude, entity.latitude, entity.longitude, distanceInMeters);
+
+        //get distance in miles from distance in meters
+        double distanceInMiles = distanceInMeters[0] * 0.000621371;
+        return distanceInMiles;
+    }
+
+    private void getGPSlocation() {
+        gps = new GPSTracker(mContext);
+
+        if (gps.canGetLocation()) {
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+
+            gpsStatusOn = true;
+        } else {
+            gpsStatusOn = false;
+        }
+
+        //for emulator use
+//            gpsStatusOn = true;
+//            latitude = 40.766;
+//            longitude = -73.975;
+
+    }
+
+
+    //returns time, formatted to insert into url
     private String getTime() {
         Date date = new Date();
 
@@ -319,27 +304,32 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public static Bitmap getBitmapFromURL(String src, String backupSrc) {
         try {
+            //gets dish photo
             URL url = new URL(src);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.connect();
             InputStream input = connection.getInputStream();
-            Bitmap myBitmap1 = BitmapFactory.decodeStream(input);
-            return myBitmap1;
+
+            return BitmapFactory.decodeStream(input);
+
         } catch (IOException e) {
             e.printStackTrace();
+
+            //use entity photo if dish photo is null
             try {
                 URL url = new URL(backupSrc);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoInput(true);
                 connection.connect();
                 InputStream input = connection.getInputStream();
-                Bitmap myBitmap2 = BitmapFactory.decodeStream(input);
-                return myBitmap2;
+                return BitmapFactory.decodeStream(input);
+
             } catch (IOException exception) {
                 exception.printStackTrace();
                 return null;
             }
+
         }
     }
 
