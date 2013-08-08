@@ -34,7 +34,7 @@ public final class R {
         public static final int lozenge=0x7f020007;
         public static final int refresh_downstate=0x7f020008;
         public static final int refresh_upstate=0x7f020009;
-        public static final int screenshot=0x7f02000a;
+        public static final int screenshot_preview=0x7f02000a;
         public static final int widget_background=0x7f02000b;
     }
     public static final class id {

@@ -24,7 +24,7 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
                 <action android:name="ness.android.widget.REFRESH_ACTION"/>
                 <action android:name="ness.android.widget.OPEN_BROWSER"/>
-                <action android:name="AUTO_UPDATE"/>
+                <action android:name="ness.android.widget.AUTO_UPDATE"/>
             </intent-filter>
 
             //specifies the widget provider info

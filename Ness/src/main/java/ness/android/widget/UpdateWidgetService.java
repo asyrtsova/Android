@@ -1,16 +1,12 @@
 package ness.android.widget;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.View;
@@ -29,13 +25,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 
-/**
- * Created by administrator on 7/8/13.
- */
 public class UpdateWidgetService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
@@ -71,9 +62,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public int mAppWidgetId;
 
     private AppWidgetManager appWidgetManager;
-    private ComponentName nessWidget;
     private int[] appWidgetIds;
-    private RemoteViews remoteViewWidget;
 
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
@@ -85,11 +74,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         System.err.println("SERVICE IS CREATED");
 
         appWidgetManager = AppWidgetManager.getInstance(mContext);
-        nessWidget = new ComponentName(mContext, WidgetProvider.class);
+        ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
         appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
-
-        remoteViewWidget = WidgetProvider.remoteViews;
-
     }
 
     public RemoteViews getViewAt(int position) {
@@ -97,9 +83,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         RemoteViews remoteViewsItem = new RemoteViews(mContext.getPackageName(), R.layout.item_layout);
 
         if (position <= getCount() && entityArray.size() != 0) {
-
-            System.err.println("SIZE OF ENTITYARRAY:" + entityArray.size() + ", POSITION/INDEX:" + position);
-
             Entity entity = entityArray.get(position);
 
             double distance = getDistanceFromEntity(entity);
@@ -108,12 +91,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             Bitmap bitmapBlank = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.blank_image);
 
             DecimalFormat distanceFormat = new DecimalFormat("#0.0");
-
+//
             remoteViewsItem.setTextViewText(R.id.text_dish, entity.topDish);
             remoteViewsItem.setTextViewText(R.id.text_entity, entity.name);
             remoteViewsItem.setTextViewText(R.id.text_distance, " | " + distanceFormat.format(distance) + " mi");
 
-            if(bitmapImg != null) {
+            if (bitmapImg != null) {
                 remoteViewsItem.setImageViewBitmap(R.id.image_view, bitmapImg);
             } else {
                 remoteViewsItem.setImageViewBitmap(R.id.image_view, bitmapBlank);
@@ -127,9 +110,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             fillInIntent.putExtras(extras);
             remoteViewsItem.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
 
-            System.err.println("INSIDE GET VIEW AT for" + entity.name);
+            System.err.println("INSIDE GET VIEW AT for" + entityArray.get(position).name);
 
         }
+
+        RemoteViews remoteViewWidget = WidgetProvider.remoteViews;
 
         remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
         remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
@@ -144,45 +129,44 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         return new RemoteViews(mContext.getPackageName(), R.layout.loading_item_layout);
     }
 
+    @Override
+    public int getViewTypeCount() {
+        return 1;
+    }
+
     public void onDataSetChanged() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
 
-        entityArray.clear();
+            entityArray.clear();
 
-        if (Looper.myLooper() != Looper.getMainLooper() && entityArray.size() == 0) {
             getGPSlocation();
+
+            RemoteViews remoteViewWidget = WidgetProvider.remoteViews;
 
             if (gpsStatusOn) {
                 getOnlineData();
+
+                //Sets up empty list view
+                if (entityArray.size() == 0) {
+                    remoteViewWidget.setTextViewText(R.id.empty_text, "The list is empty.");
+                    remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+                    remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+                }
             }
+            else {
+                remoteViewWidget.setTextViewText(R.id.empty_text, "Please turn on location services.");
+                remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+                remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+            }
+
+            System.err.println("ENTITY ARRAY SIZE:" + entityArray.size());
+            appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
         }
 
-        System.err.println("ENTITY ARRAY SIZE:" + entityArray.size());
-
-        //Sets up empty list view
-        if (entityArray.size() == 0) {
-            remoteViewWidget.setTextViewText(R.id.empty_text, "The list is empty.");
-
-            remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-            remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
-        }
-
-        //sets up no location sevices view
-        if (!gpsStatusOn) {
-            remoteViewWidget.setTextViewText(R.id.empty_text, "Please turn on location services.");
-
-            remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-            remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
-        }
-
-        appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
     }
 
     public int getCount() {
         return entityArray.size();
-    }
-
-    public int getViewTypeCount() {
-        return 2;
     }
 
     public long getItemId(int position) {
@@ -194,7 +178,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onDestroy() {
-        System.err.println("SERVICE DESTROYED" + remoteViewWidget);
+        System.err.println("SERVICE DESTROYED");
         entityArray.clear();
     }
 
@@ -205,12 +189,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         queryUrl = "https://api-v3-s.trumpet.io/json-api/v3/search?options=HIDE_CLOSED_PLACES&lat=" + latitude + "&sortBy=BEST&lon=" + longitude + "&category=restaurant&localtime=" + urlTime + "&userId=00000000-000e-c25d-c000-000000026810&magicScreen=MENU";
 
-        //Creating JSON Parser instance
-        JSONParser jParser = new JSONParser();
+        System.err.println("QUERY URL:" + queryUrl);
 
         try {
             // getting JSON string from URL
-            JSONObject json = jParser.getJSONFromUrl(queryUrl);
+            JSONObject json = JSONParser.getJSONFromUrl(queryUrl);
             // Getting Array of Places
             entities = json.getJSONArray(TAG_ENTITIES);
 
@@ -263,8 +246,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         Location.distanceBetween(latitude, longitude, entity.latitude, entity.longitude, distanceInMeters);
 
         //get distance in miles from distance in meters
-        double distanceInMiles = distanceInMeters[0] * 0.000621371;
-        return distanceInMiles;
+        return distanceInMeters[0] * 0.000621371;
     }
 
     private void getGPSlocation() {
@@ -280,9 +262,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         }
 
         //for emulator use
-//            gpsStatusOn = true;
-//            latitude = 40.766;
-//            longitude = -73.975;
+//        gpsStatusOn = true;
+//        latitude = 40.766;
+//        longitude = -73.975;
 
     }
 
@@ -295,8 +277,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         String formattedDate = dateFormat.format(date);
 
         try {
-            String encodedDate = URLEncoder.encode(formattedDate, "utf-8");
-            return encodedDate;
+            return URLEncoder.encode(formattedDate, "utf-8");
         } catch (Exception e) {
             return "2013-08-06T15%3A24-0700";
         }

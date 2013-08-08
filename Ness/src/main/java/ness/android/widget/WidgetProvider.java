@@ -25,12 +25,14 @@ public class WidgetProvider extends AppWidgetProvider {
     public static final String EXTRA_ITEM = "ness.android.widget.EXTRA_ITEM";
 
     private final int ALARM_ID = 0;
-    private final int INTERVAL_MILLIS = 1000 * 60 * 10; // auto update every 10 min
+    private final int INTERVAL_MILLIS = 20000; // auto update every 10 min
 
     public static RemoteViews remoteViews;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+
+        System.err.println("APPWIDGETPROVIDER ONUPDATE");
 
         //initialize remoteViews in case onUpdate is called before onReceive
         if(remoteViews == null) {
@@ -121,6 +123,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
+        System.err.println("APPWIDGETPROVIDER ENABLED");
         startAlarm(context);
         super.onEnabled(context);
     }
