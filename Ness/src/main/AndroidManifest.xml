@@ -15,7 +15,7 @@
 
         //the AppWidgetProvider
         <receiver
-                android:icon="@drawable/ic_launcher"
+                android:icon="@drawable/ness_icon"
                 android:label="A Ness Recommendations"
                 android:name="WidgetProvider"
                 android:exported="true">

@@ -29,9 +29,9 @@ public final class R {
         public static final int brandmark_large=0x7f020002;
         public static final int brandmark_logo=0x7f020003;
         public static final int clock_img=0x7f020004;
-        public static final int ic_launcher=0x7f020005;
-        public static final int location_pin=0x7f020006;
-        public static final int lozenge=0x7f020007;
+        public static final int location_pin=0x7f020005;
+        public static final int lozenge=0x7f020006;
+        public static final int ness_icon=0x7f020007;
         public static final int refresh_downstate=0x7f020008;
         public static final int refresh_upstate=0x7f020009;
         public static final int screenshot_preview=0x7f02000a;

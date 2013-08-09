@@ -8,6 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -22,12 +23,13 @@ public class WidgetProvider extends AppWidgetProvider {
     public static final String OPEN_BROWSER = "ness.android.widget.OPEN_BROWSER";
     public static final String AUTO_UPDATE = "ness.android.widget.AUTO_UPDATE";
 
-    public static final String EXTRA_ITEM = "ness.android.widget.EXTRA_ITEM";
+    public static final String URL_EXTRA = "ness.android.widget.URL_EXTRA";
+    public static final String VIEW_EXTRA = "ness.android.widget.VIEW_EXTRA";
 
     private final int ALARM_ID = 0;
-    private final int INTERVAL_MILLIS = 20000; // auto update every 10 min
+    private final int INTERVAL_MILLIS = 600000; // auto update every 10 min
 
-    public static RemoteViews remoteViews;
+    public RemoteViews remoteViews;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -39,14 +41,20 @@ public class WidgetProvider extends AppWidgetProvider {
             remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         }
 
+        System.err.println("REMOTEVIEW: " + remoteViews);
+
         for (int i = 0; i < appWidgetIds.length; ++i) {
 
             Intent serviceIntent = new Intent(context, UpdateWidgetService.class);
 
             //add app widget ID to the intent extras
             serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
+            RemoteViews rv = remoteViews.clone();
+            serviceIntent.putExtra(VIEW_EXTRA, rv);
+
             //embed extras
             serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
+
 
             //set up the RemoteViews object to use a RemoteViews adapter, which connects to
             // a RemoveViewsService through the specified intent. This populates the data.
@@ -110,7 +118,7 @@ public class WidgetProvider extends AppWidgetProvider {
         //opens browser to Ness entity page if item view is clicked
         if (intent.getAction().equals(OPEN_BROWSER)) {
 
-            String uri = intent.getStringExtra(EXTRA_ITEM);
+            String uri = intent.getStringExtra(URL_EXTRA);
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
             browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setData(Uri.parse(uri));

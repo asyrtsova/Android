@@ -63,6 +63,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private AppWidgetManager appWidgetManager;
     private int[] appWidgetIds;
+    private RemoteViews widgetRemoteView;
 
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
@@ -76,6 +77,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         appWidgetManager = AppWidgetManager.getInstance(mContext);
         ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
         appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
+
     }
 
     public RemoteViews getViewAt(int position) {
@@ -104,7 +106,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             //Set fill-intent to fill in the pending intent template in WidgetProvider
             Bundle extras = new Bundle();
-            extras.putString(WidgetProvider.EXTRA_ITEM, "https://likeness.com" + entity.nessUri);
+            extras.putString(WidgetProvider.URL_EXTRA, "https://likeness.com" + entity.nessUri);
 
             Intent fillInIntent = new Intent();
             fillInIntent.putExtras(extras);
@@ -114,7 +116,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         }
 
-        RemoteViews remoteViewWidget = WidgetProvider.remoteViews;
+        RemoteViews remoteViewWidget = mIntent.getParcelableExtra(WidgetProvider.VIEW_EXTRA);
 
         remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
         remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
@@ -129,11 +131,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         return new RemoteViews(mContext.getPackageName(), R.layout.loading_item_layout);
     }
 
-    @Override
-    public int getViewTypeCount() {
-        return 1;
-    }
-
     public void onDataSetChanged() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
 
@@ -141,7 +138,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             getGPSlocation();
 
-            RemoteViews remoteViewWidget = WidgetProvider.remoteViews;
+            RemoteViews remoteViewWidget = mIntent.getParcelableExtra(WidgetProvider.VIEW_EXTRA);
 
             if (gpsStatusOn) {
                 getOnlineData();
@@ -167,6 +164,11 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public int getCount() {
         return entityArray.size();
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 1;
     }
 
     public long getItemId(int position) {
