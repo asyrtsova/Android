@@ -1,7 +1,6 @@
 package ness.android.widget;
 
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -28,6 +26,7 @@ import java.util.Date;
 
 
 public class UpdateWidgetService extends RemoteViewsService {
+
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
         return new StackRemoteViewsFactory(this.getApplicationContext(), intent);
@@ -61,10 +60,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public Context mContext;
     public int mAppWidgetId;
 
-    private AppWidgetManager appWidgetManager;
-    private int[] appWidgetIds;
-    private RemoteViews widgetRemoteView;
-
     public StackRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
         mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -73,11 +68,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public void onCreate() {
         System.err.println("SERVICE IS CREATED");
-
-        appWidgetManager = AppWidgetManager.getInstance(mContext);
-        ComponentName nessWidget = new ComponentName(mContext, WidgetProvider.class);
-        appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
-
     }
 
     public RemoteViews getViewAt(int position) {
@@ -116,12 +106,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         }
 
-        RemoteViews remoteViewWidget = mIntent.getParcelableExtra(WidgetProvider.VIEW_EXTRA);
-
-        remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-        remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
-
-        appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
+        if (position == 0) {
+            Intent stopRefreshIntent = new Intent();
+            stopRefreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, mAppWidgetId);
+            stopRefreshIntent.setAction(WidgetProvider.STOP_REFRESH);
+            mContext.sendBroadcast(stopRefreshIntent);
+        }
 
         return remoteViewsItem;
     }
@@ -133,31 +123,31 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     public void onDataSetChanged() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-
             entityArray.clear();
 
             getGPSlocation();
 
-            RemoteViews remoteViewWidget = mIntent.getParcelableExtra(WidgetProvider.VIEW_EXTRA);
-
             if (gpsStatusOn) {
                 getOnlineData();
 
-                //Sets up empty list view
+
                 if (entityArray.size() == 0) {
-                    remoteViewWidget.setTextViewText(R.id.empty_text, "The list is empty.");
-                    remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-                    remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+                    //send intent to show "The list is empty."
+                    Intent intentChangeMainText = new Intent();
+                    intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, mAppWidgetId);
+                    intentChangeMainText.setAction(WidgetProvider.SET_EMPTY_LIST_TEXT);
+                    mContext.sendBroadcast(intentChangeMainText);
                 }
             }
             else {
-                remoteViewWidget.setTextViewText(R.id.empty_text, "Please turn on location services.");
-                remoteViewWidget.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-                remoteViewWidget.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+                //send intent to show "Please turn on location services."
+                Intent intentChangeMainText = new Intent();
+                intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, mAppWidgetId);
+                intentChangeMainText.setAction(WidgetProvider.SET_NO_LOCATION_TEXT);
+                mContext.sendBroadcast(intentChangeMainText);
             }
 
             System.err.println("ENTITY ARRAY SIZE:" + entityArray.size());
-            appWidgetManager.updateAppWidget(appWidgetIds, remoteViewWidget);
         }
 
     }

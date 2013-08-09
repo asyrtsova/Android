@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,8 +24,11 @@ public class WidgetProvider extends AppWidgetProvider {
     public static final String OPEN_BROWSER = "ness.android.widget.OPEN_BROWSER";
     public static final String AUTO_UPDATE = "ness.android.widget.AUTO_UPDATE";
 
+    public static final String STOP_REFRESH = "ness.android.widget.STOP_REFRESH";
+    public static final String SET_EMPTY_LIST_TEXT = "ness.android.widget.SET_EMPTY_LIST_TEXT";
+    public static final String SET_NO_LOCATION_TEXT = "ness.android.widget.SET_NO_LOCATION_TEXT";
+
     public static final String URL_EXTRA = "ness.android.widget.URL_EXTRA";
-    public static final String VIEW_EXTRA = "ness.android.widget.VIEW_EXTRA";
 
     private final int ALARM_ID = 0;
     private final int INTERVAL_MILLIS = 600000; // auto update every 10 min
@@ -41,20 +45,15 @@ public class WidgetProvider extends AppWidgetProvider {
             remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         }
 
-        System.err.println("REMOTEVIEW: " + remoteViews);
-
         for (int i = 0; i < appWidgetIds.length; ++i) {
 
             Intent serviceIntent = new Intent(context, UpdateWidgetService.class);
 
             //add app widget ID to the intent extras
             serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
-            RemoteViews rv = remoteViews.clone();
-            serviceIntent.putExtra(VIEW_EXTRA, rv);
 
             //embed extras
             serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
-
 
             //set up the RemoteViews object to use a RemoteViews adapter, which connects to
             // a RemoveViewsService through the specified intent. This populates the data.
@@ -126,6 +125,50 @@ public class WidgetProvider extends AppWidgetProvider {
 
         }
 
+        //stops progress bar; refresh button reappears
+        if (intent.getAction().equals(STOP_REFRESH)) {
+
+            System.err.println("REFRESHING STOPPED");
+            for (int i = 0; i < appWidgetIds.length; ++i) {
+
+
+                remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+            remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+
+                appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+            }
+        }
+
+        //sets text in case of empty list
+        if (intent.getAction().equals(SET_EMPTY_LIST_TEXT)) {
+
+            System.err.println("LIST IS EMPTY ACTION");
+
+            for (int i = 0; i < appWidgetIds.length; ++i) {
+
+                remoteViews.setTextViewText(R.id.widget_view_text, "The list is empty.");
+            remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+            remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+
+            appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+            }
+        }
+
+        //sets text in case no location services are available
+        if (intent.getAction().equals(SET_NO_LOCATION_TEXT)) {
+
+            System.err.println("REFRESHING STOPPED");
+
+            for (int i = 0; i < appWidgetIds.length; ++i) {
+
+                remoteViews.setTextViewText(R.id.widget_view_text, "Please turn on location services.");
+            remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+            remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+
+            appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+            }
+        }
+
         super.onReceive(context, intent);
     }
 
@@ -184,6 +227,11 @@ public class WidgetProvider extends AppWidgetProvider {
 
         System.err.println("ALARM STARTED");
 
+    }
+
+    public int[] getWidgetIds (Context context, AppWidgetManager appWidgetManager){
+        ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
+        return appWidgetManager.getAppWidgetIds(nessWidget);
     }
 
 }

@@ -39,7 +39,6 @@ public final class R {
     }
     public static final class id {
         public static final int empty_layout=0x7f09000b;
-        public static final int empty_text=0x7f09000c;
         public static final int image_brandmark=0x7f090002;
         public static final int image_view=0x7f090001;
         public static final int item_layout=0x7f090000;
@@ -53,6 +52,7 @@ public final class R {
         public static final int text_distance=0x7f090004;
         public static final int text_entity=0x7f090003;
         public static final int widget_layout=0x7f090009;
+        public static final int widget_view_text=0x7f09000c;
     }
     public static final class layout {
         public static final int item_layout=0x7f030000;

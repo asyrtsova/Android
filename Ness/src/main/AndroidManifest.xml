@@ -25,6 +25,9 @@
                 <action android:name="ness.android.widget.REFRESH_ACTION"/>
                 <action android:name="ness.android.widget.OPEN_BROWSER"/>
                 <action android:name="ness.android.widget.AUTO_UPDATE"/>
+                <action android:name="ness.android.widget.STOP_REFRESH"/>
+                <action android:name="ness.android.widget.SET_EMPTY_LIST_TEXT"/>
+                <action android:name="ness.android.widget.SET_NO_LOCATION_TEXT"/>
             </intent-filter>
 
             //specifies the widget provider info
@@ -34,11 +37,22 @@
 
         </receiver>
 
+        <receiver android:name="onRestartReciever">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_RESTARTED"/>
+                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <data   android:scheme="package"
+                        android:path="ness.android.widget"/>
+            </intent-filter>
+        </receiver>
+
+
         //the service gets data and serves the RemoteViews to the collection widget
         <service
                 android:name=".UpdateWidgetService"
                 android:permission="android.permission.BIND_REMOTEVIEWS"
-                android:exported="false"></service>
+                android:exported="false"/>
 
     </application>
 
