@@ -108,7 +108,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         if (position == 0) {
             Intent stopRefreshIntent = new Intent();
-            stopRefreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, mAppWidgetId);
+            stopRefreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             stopRefreshIntent.setAction(WidgetProvider.STOP_REFRESH);
             mContext.sendBroadcast(stopRefreshIntent);
         }
@@ -134,7 +134,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 if (entityArray.size() == 0) {
                     //send intent to show "The list is empty."
                     Intent intentChangeMainText = new Intent();
-                    intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, mAppWidgetId);
+                    intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
                     intentChangeMainText.setAction(WidgetProvider.SET_EMPTY_LIST_TEXT);
                     mContext.sendBroadcast(intentChangeMainText);
                 }
@@ -142,7 +142,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             else {
                 //send intent to show "Please turn on location services."
                 Intent intentChangeMainText = new Intent();
-                intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, mAppWidgetId);
+                intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
                 intentChangeMainText.setAction(WidgetProvider.SET_NO_LOCATION_TEXT);
                 mContext.sendBroadcast(intentChangeMainText);
             }

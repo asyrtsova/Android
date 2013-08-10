@@ -41,7 +41,7 @@ public class WidgetProvider extends AppWidgetProvider {
         System.err.println("APPWIDGETPROVIDER ONUPDATE");
 
         //initialize remoteViews in case onUpdate is called before onReceive
-        if(remoteViews == null) {
+        if (remoteViews == null) {
             remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         }
 
@@ -91,7 +91,7 @@ public class WidgetProvider extends AppWidgetProvider {
         System.err.println("AppWidget onRecieve: " + intent.getAction());
 
         //initialize remoteViews in case onReceive is called before onUpdate
-        if(remoteViews == null) {
+        if (remoteViews == null) {
             remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         }
 
@@ -107,7 +107,7 @@ public class WidgetProvider extends AppWidgetProvider {
                 remoteViews.setViewVisibility(R.id.refresh_button, View.INVISIBLE);
                 remoteViews.setViewVisibility(R.id.progress_bar, View.VISIBLE);
 
-                appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], remoteViews);
 
             }
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.stack_view);
@@ -133,9 +133,9 @@ public class WidgetProvider extends AppWidgetProvider {
 
 
                 remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-            remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+                remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
 
-                appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], remoteViews);
             }
         }
 
@@ -147,10 +147,10 @@ public class WidgetProvider extends AppWidgetProvider {
             for (int i = 0; i < appWidgetIds.length; ++i) {
 
                 remoteViews.setTextViewText(R.id.widget_view_text, "The list is empty.");
-            remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-            remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+                remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+                remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
 
-            appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], remoteViews);
             }
         }
 
@@ -162,10 +162,10 @@ public class WidgetProvider extends AppWidgetProvider {
             for (int i = 0; i < appWidgetIds.length; ++i) {
 
                 remoteViews.setTextViewText(R.id.widget_view_text, "Please turn on location services.");
-            remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-            remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+                remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+                remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
 
-            appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], remoteViews);
             }
         }
 
@@ -199,8 +199,7 @@ public class WidgetProvider extends AppWidgetProvider {
         super.onDeleted(context, appWidgetIds);
     }
 
-    public void stopAlarm(Context context)
-    {
+    public void stopAlarm(Context context) {
         Intent alarmIntent = new Intent(WidgetProvider.AUTO_UPDATE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, ALARM_ID, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -212,8 +211,7 @@ public class WidgetProvider extends AppWidgetProvider {
     }
 
 
-    public void startAlarm(Context context)
-    {
+    public void startAlarm(Context context) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MILLISECOND, INTERVAL_MILLIS);
 
@@ -229,7 +227,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     }
 
-    public int[] getWidgetIds (Context context, AppWidgetManager appWidgetManager){
+    public int[] getWidgetIds(Context context, AppWidgetManager appWidgetManager) {
         ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
         return appWidgetManager.getAppWidgetIds(nessWidget);
     }

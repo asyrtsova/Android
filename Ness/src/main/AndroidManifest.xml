@@ -37,11 +37,9 @@
 
         </receiver>
 
-        <receiver android:name="onRestartReciever">
+        <receiver android:name="reciever.onRestartReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_RESTARTED"/>
-                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <data   android:scheme="package"
                         android:path="ness.android.widget"/>
             </intent-filter>
