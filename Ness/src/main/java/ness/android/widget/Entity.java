@@ -27,12 +27,6 @@ public class Entity {
         latitude = entLatitude;
         longitude = entLongitude;
 
-        dishPhotoUrl = getSmallerImg(dishPhotoUrl);
-    }
-
-    //5 instead of 7 at end of Ness' img Url gets smaller image
-    private String getSmallerImg(String initialUrl) {
-        return initialUrl.substring(0, initialUrl.length() - 5) + "5.jpg";
     }
 
 }

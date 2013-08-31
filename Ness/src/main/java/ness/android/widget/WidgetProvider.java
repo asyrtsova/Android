@@ -27,11 +27,12 @@ public class WidgetProvider extends AppWidgetProvider {
     public static final String STOP_REFRESH = "ness.android.widget.STOP_REFRESH";
     public static final String SET_EMPTY_LIST_TEXT = "ness.android.widget.SET_EMPTY_LIST_TEXT";
     public static final String SET_NO_LOCATION_TEXT = "ness.android.widget.SET_NO_LOCATION_TEXT";
+    public static final String SET_NO_CONNECTION_TEXT = "ness.android.widget.SET_NO_CONNECTION_TEXT";
 
     public static final String URL_EXTRA = "ness.android.widget.URL_EXTRA";
 
     private final int ALARM_ID = 0;
-    private final int INTERVAL_MILLIS = 600000; // auto update every 10 min
+    private final int INTERVAL_MILLIS = 7200000; // auto update every 2 hours
 
     public RemoteViews remoteViews;
 
@@ -99,17 +100,17 @@ public class WidgetProvider extends AppWidgetProvider {
         ComponentName nessWidget = new ComponentName(context, WidgetProvider.class);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(nessWidget);
 
+        int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[0]);
+
         //updates widget if refresh button is pressed or alarm manager triggered
         if (intent.getAction().equals(REFRESH_ACTION) || intent.getAction().equals(AUTO_UPDATE)) {
 
-            for (int i = 0; i < appWidgetIds.length; ++i) {
 
                 remoteViews.setViewVisibility(R.id.refresh_button, View.INVISIBLE);
                 remoteViews.setViewVisibility(R.id.progress_bar, View.VISIBLE);
 
-                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], remoteViews);
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetId, remoteViews);
 
-            }
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.stack_view);
 
         }
@@ -129,44 +130,47 @@ public class WidgetProvider extends AppWidgetProvider {
         if (intent.getAction().equals(STOP_REFRESH)) {
 
             System.err.println("REFRESHING STOPPED");
-            for (int i = 0; i < appWidgetIds.length; ++i) {
 
 
                 remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
                 remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
 
-                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], remoteViews);
-            }
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetId, remoteViews);
+
         }
 
         //sets text in case of empty list
         if (intent.getAction().equals(SET_EMPTY_LIST_TEXT)) {
 
-            System.err.println("LIST IS EMPTY ACTION");
-
-            for (int i = 0; i < appWidgetIds.length; ++i) {
 
                 remoteViews.setTextViewText(R.id.widget_view_text, "The list is empty.");
                 remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
                 remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
 
-                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], remoteViews);
-            }
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetId, remoteViews);
+
         }
 
         //sets text in case no location services are available
         if (intent.getAction().equals(SET_NO_LOCATION_TEXT)) {
 
-            System.err.println("REFRESHING STOPPED");
-
-            for (int i = 0; i < appWidgetIds.length; ++i) {
-
                 remoteViews.setTextViewText(R.id.widget_view_text, "Please turn on location services.");
                 remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
                 remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
 
-                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], remoteViews);
-            }
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetId, remoteViews);
+
+        }
+
+        //sets text in case no location services are available
+        if (intent.getAction().equals(SET_NO_CONNECTION_TEXT)) {
+
+                remoteViews.setTextViewText(R.id.widget_view_text, "No network connection available.");
+                remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+                remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
+
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetId, remoteViews);
+
         }
 
         super.onReceive(context, intent);

@@ -39,18 +39,20 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public double longitude;
     public double latitude;
     public boolean gpsStatusOn;
+    public boolean networkStatusOn;
+    public boolean refreshing;
 
     //tags used to parse JSON
     public static final String TAG_ENTITIES = "entities";
     public static final String TAG_NAME = "name";
-    public static final String TAG_NESS_URI = "nessWebUri";
+    public static final String TAG_NESS_WEB_URI = "nessWebUri";
     public static final String TAG_COVERPHOTO = "coverPhoto";
-    public static final String TAG_THUMBNAIL_URL = "thumbnail";
+    public static final String TAG_THUMBNAIL = "thumbnail";
     public static final String TAG_LOCATION = "location";
     public static final String TAG_LATITUDE = "lat";
     public static final String TAG_LONGITUDE = "lon";
     public static final String TAG_TOP_MENU_ITEM = "topMenuItem";
-    public static final String TAG_TOP_MENU_ITEM_PHOTO = "photo";
+    public static final String TAG_PHOTO = "photo";
 
     public String queryUrl;
     public JSONArray entities = null;
@@ -79,11 +81,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             double distance = getDistanceFromEntity(entity);
 
+            System.err.println("ENTITY DISH URL:" + entity.dishPhotoUrl + ", PHOTO URL: " +entity.photoUri);
             Bitmap bitmapImg = getBitmapFromURL(entity.dishPhotoUrl, entity.photoUri);
             Bitmap bitmapBlank = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.blank_image);
 
             DecimalFormat distanceFormat = new DecimalFormat("#0.0");
-//
+
             remoteViewsItem.setTextViewText(R.id.text_dish, entity.topDish);
             remoteViewsItem.setTextViewText(R.id.text_entity, entity.name);
             remoteViewsItem.setTextViewText(R.id.text_distance, " | " + distanceFormat.format(distance) + " mi");
@@ -102,17 +105,10 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             fillInIntent.putExtras(extras);
             remoteViewsItem.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
 
-            System.err.println("INSIDE GET VIEW AT for" + entityArray.get(position).name);
+            if(entityArray.size() != 0)
+                System.err.println("INSIDE GET VIEW AT for" + entityArray.get(position).name);
 
         }
-
-        if (position == 0) {
-            Intent stopRefreshIntent = new Intent();
-            stopRefreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-            stopRefreshIntent.setAction(WidgetProvider.STOP_REFRESH);
-            mContext.sendBroadcast(stopRefreshIntent);
-        }
-
         return remoteViewsItem;
     }
 
@@ -122,6 +118,9 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public void onDataSetChanged() {
+
+        refreshing = true;
+
         if (Looper.myLooper() != Looper.getMainLooper()) {
             entityArray.clear();
 
@@ -130,24 +129,43 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             if (gpsStatusOn) {
                 getOnlineData();
 
-
-                if (entityArray.size() == 0) {
+                if (entityArray.size() == 0 && networkStatusOn) {
                     //send intent to show "The list is empty."
                     Intent intentChangeMainText = new Intent();
                     intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
                     intentChangeMainText.setAction(WidgetProvider.SET_EMPTY_LIST_TEXT);
                     mContext.sendBroadcast(intentChangeMainText);
+                    refreshing = false;
                 }
-            }
-            else {
+
+                if(!networkStatusOn){
+                    System.err.println("SEND NETWORK IS OFF INTENT");
+                    //send intent to show "No network connection available."
+                    Intent intentChangeMainText = new Intent();
+                    intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+                    intentChangeMainText.setAction(WidgetProvider.SET_NO_CONNECTION_TEXT);
+                    mContext.sendBroadcast(intentChangeMainText);
+                    refreshing = false;
+                }
+
+            } else {
                 //send intent to show "Please turn on location services."
                 Intent intentChangeMainText = new Intent();
                 intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
                 intentChangeMainText.setAction(WidgetProvider.SET_NO_LOCATION_TEXT);
                 mContext.sendBroadcast(intentChangeMainText);
+                refreshing = false;
             }
 
             System.err.println("ENTITY ARRAY SIZE:" + entityArray.size());
+        }
+
+        if (refreshing){
+            Intent stopRefreshIntent = new Intent();
+            stopRefreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+            stopRefreshIntent.setAction(WidgetProvider.STOP_REFRESH);
+            mContext.sendBroadcast(stopRefreshIntent);
+            refreshing = false;
         }
 
     }
@@ -177,6 +195,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     //parses Ness restful API to get entity data
     private void getOnlineData() {
 
+        networkStatusOn = true;
+
         String urlTime = getTime();
 
         queryUrl = "https://api-v3-s.trumpet.io/json-api/v3/search?options=HIDE_CLOSED_PLACES&lat=" + latitude + "&sortBy=BEST&lon=" + longitude + "&category=restaurant&localtime=" + urlTime + "&userId=00000000-000e-c25d-c000-000000026810&magicScreen=MENU";
@@ -186,6 +206,12 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         try {
             // getting JSON string from URL
             JSONObject json = JSONParser.getJSONFromUrl(queryUrl);
+            System.err.println("PASSED QUERY");
+            if (!JSONParser.networkOn){
+                System.err.println("NETWORK IS OFF");
+                networkStatusOn = false;
+            }else {
+
             // Getting Array of Places
             entities = json.getJSONArray(TAG_ENTITIES);
 
@@ -198,7 +224,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
                 String name = ent.getString(TAG_NAME);
 
-                String uriWeb = ent.getString(TAG_NESS_URI);
+                String uriWeb = ent.getString(TAG_NESS_WEB_URI);
 
                 JSONObject loc = ent.getJSONObject(TAG_LOCATION);
                 double entLat = loc.getDouble(TAG_LATITUDE);
@@ -206,23 +232,25 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
                 JSONObject topItem = ent.getJSONObject(TAG_TOP_MENU_ITEM);
                 String topItemName = topItem.getString(TAG_NAME);
-                String topItemPhoto = null;
-                if (topItem.has(TAG_TOP_MENU_ITEM_PHOTO)) {
-                    topItemPhoto = topItem.getString(TAG_TOP_MENU_ITEM_PHOTO);
+                JSONObject topItemPhoto = topItem.getJSONObject(TAG_PHOTO);
+                String topItemImgUrl = null;
+                if (topItemPhoto.has(TAG_THUMBNAIL)) {
+                    topItemImgUrl = topItemPhoto.getString(TAG_THUMBNAIL);
                 }
 
                 String urlImg = null;
                 if (ent.has(TAG_COVERPHOTO)) {
                     JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
-                    urlImg = coverphoto.getString(TAG_THUMBNAIL_URL);
+                    urlImg = coverphoto.getString(TAG_THUMBNAIL);
                 }
 
                 //if entity has a photo, create Entity object with these variables and add it to an array
                 if (urlImg != null || topItemPhoto != null) {
-                    Entity objEntity = new Entity(name, uriWeb, urlImg, topItemName, topItemPhoto, entLat, entLon);
+                    Entity objEntity = new Entity(name, uriWeb, urlImg, topItemName, topItemImgUrl, entLat, entLon);
                     entityArray.add(objEntity);
 
                     System.err.println("ENT:" + objEntity.name);
+                }
                 }
 
             }

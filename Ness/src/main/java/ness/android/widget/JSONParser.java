@@ -24,6 +24,8 @@ public class JSONParser {
     static JSONObject jObj = null;
     static String json = "";
 
+    public static boolean networkOn = false;
+
     // constructor
     public JSONParser() {
 
@@ -37,15 +39,25 @@ public class JSONParser {
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpGet httpGet = new HttpGet(url);
             httpGet.addHeader("Authorization", NESS_AUTH_TOKEN);
-            HttpResponse httpResponse = httpClient.execute(httpGet);
-            HttpEntity httpEntity = httpResponse.getEntity();
-            is = httpEntity.getContent();
+            System.err.println("MAKING QUERY1. Client:" + httpClient + " Get:" + httpGet);
 
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            System.err.println("MAKING QUERY2");
+
+            HttpEntity httpEntity = httpResponse.getEntity();
+            System.err.println("MAKING QUERY3");
+
+            is = httpEntity.getContent();
+            networkOn = true;
+            System.err.println("FINISH QUERY");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            networkOn = false;
             e.printStackTrace();
         }
 

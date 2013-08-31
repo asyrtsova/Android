@@ -28,6 +28,7 @@
                 <action android:name="ness.android.widget.STOP_REFRESH"/>
                 <action android:name="ness.android.widget.SET_EMPTY_LIST_TEXT"/>
                 <action android:name="ness.android.widget.SET_NO_LOCATION_TEXT"/>
+                <action android:name="ness.android.widget.SET_NO_CONNECTION_TEXT"/>
             </intent-filter>
 
             //specifies the widget provider info
@@ -35,14 +36,6 @@
                     android:name="android.appwidget.provider"
                     android:resource="@xml/widget_info"/>
 
-        </receiver>
-
-        <receiver android:name="reciever.onRestartReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_RESTARTED"/>
-                <data   android:scheme="package"
-                        android:path="ness.android.widget"/>
-            </intent-filter>
         </receiver>
 
 
