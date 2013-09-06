@@ -81,7 +81,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
             double distance = getDistanceFromEntity(entity);
 
-            System.err.println("ENTITY DISH URL:" + entity.dishPhotoUrl + ", PHOTO URL: " +entity.photoUri);
+            System.err.println("ENTITY DISH URL:" + entity.dishPhotoUrl + ", PHOTO URL: " + entity.photoUri);
             Bitmap bitmapImg = getBitmapFromURL(entity.dishPhotoUrl, entity.photoUri);
             Bitmap bitmapBlank = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.blank_image);
 
@@ -105,7 +105,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             fillInIntent.putExtras(extras);
             remoteViewsItem.setOnClickFillInIntent(R.id.item_layout, fillInIntent);
 
-            if(entityArray.size() != 0)
+            if (entityArray.size() != 0)
                 System.err.println("INSIDE GET VIEW AT for" + entityArray.get(position).name);
 
         }
@@ -138,7 +138,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                     refreshing = false;
                 }
 
-                if(!networkStatusOn){
+                if (!networkStatusOn) {
                     System.err.println("SEND NETWORK IS OFF INTENT");
                     //send intent to show "No network connection available."
                     Intent intentChangeMainText = new Intent();
@@ -160,7 +160,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             System.err.println("ENTITY ARRAY SIZE:" + entityArray.size());
         }
 
-        if (refreshing){
+        if (refreshing) {
             Intent stopRefreshIntent = new Intent();
             stopRefreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             stopRefreshIntent.setAction(WidgetProvider.STOP_REFRESH);
@@ -207,50 +207,52 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             // getting JSON string from URL
             JSONObject json = JSONParser.getJSONFromUrl(queryUrl);
             System.err.println("PASSED QUERY");
-            if (!JSONParser.networkOn){
+            if (!JSONParser.networkOn) {
                 System.err.println("NETWORK IS OFF");
                 networkStatusOn = false;
-            }else {
+            } else {
 
-            // Getting Array of Places
-            entities = json.getJSONArray(TAG_ENTITIES);
+                // Getting Array of Places
+                entities = json.getJSONArray(TAG_ENTITIES);
 
-            // looping through all entities
-            System.err.println("ENTITIES LENGTH:" + entities.length());
-            for (int i = 0; i < entities.length(); i++) {
-                JSONObject ent = entities.getJSONObject(i);
+                // looping through all entities
+                System.err.println("ENTITIES LENGTH:" + entities.length());
+                for (int i = 0; i < entities.length(); i++) {
+                    JSONObject ent = entities.getJSONObject(i);
 
-                // Storing each json item in variable
+                    if (ent.has(TAG_TOP_MENU_ITEM)) {
+                        // Storing each json item in variable
 
-                String name = ent.getString(TAG_NAME);
+                        String name = ent.getString(TAG_NAME);
 
-                String uriWeb = ent.getString(TAG_NESS_WEB_URI);
+                        String uriWeb = ent.getString(TAG_NESS_WEB_URI);
 
-                JSONObject loc = ent.getJSONObject(TAG_LOCATION);
-                double entLat = loc.getDouble(TAG_LATITUDE);
-                double entLon = loc.getDouble(TAG_LONGITUDE);
+                        JSONObject loc = ent.getJSONObject(TAG_LOCATION);
+                        double entLat = loc.getDouble(TAG_LATITUDE);
+                        double entLon = loc.getDouble(TAG_LONGITUDE);
 
-                JSONObject topItem = ent.getJSONObject(TAG_TOP_MENU_ITEM);
-                String topItemName = topItem.getString(TAG_NAME);
-                JSONObject topItemPhoto = topItem.getJSONObject(TAG_PHOTO);
-                String topItemImgUrl = null;
-                if (topItemPhoto.has(TAG_THUMBNAIL)) {
-                    topItemImgUrl = topItemPhoto.getString(TAG_THUMBNAIL);
-                }
+                        JSONObject topItem = ent.getJSONObject(TAG_TOP_MENU_ITEM);
+                        String topItemName = topItem.getString(TAG_NAME);
+                        JSONObject topItemPhoto = topItem.getJSONObject(TAG_PHOTO);
+                        String topItemImgUrl = null;
+                        if (topItemPhoto.has(TAG_THUMBNAIL)) {
+                            topItemImgUrl = topItemPhoto.getString(TAG_THUMBNAIL);
+                        }
 
-                String urlImg = null;
-                if (ent.has(TAG_COVERPHOTO)) {
-                    JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
-                    urlImg = coverphoto.getString(TAG_THUMBNAIL);
-                }
+                        String urlImg = null;
+                        if (ent.has(TAG_COVERPHOTO)) {
+                            JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
+                            urlImg = coverphoto.getString(TAG_THUMBNAIL);
+                        }
 
-                //if entity has a photo, create Entity object with these variables and add it to an array
-                if (urlImg != null || topItemPhoto != null) {
-                    Entity objEntity = new Entity(name, uriWeb, urlImg, topItemName, topItemImgUrl, entLat, entLon);
-                    entityArray.add(objEntity);
+                        //if entity has a photo, create Entity object with these variables and add it to an array
+                        if (urlImg != null || topItemPhoto != null) {
+                            Entity objEntity = new Entity(name, uriWeb, urlImg, topItemName, topItemImgUrl, entLat, entLon);
+                            entityArray.add(objEntity);
 
-                    System.err.println("ENT:" + objEntity.name);
-                }
+                            System.err.println("ENT:" + objEntity.name);
+                        }
+                    }
                 }
 
             }
