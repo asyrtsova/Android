@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Looper;
 import android.widget.RemoteViews;
@@ -124,12 +126,33 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             entityArray.clear();
 
+            networkStatusOn = checkNetworkConnection();
+
             getGPSlocation();
 
-            if (gpsStatusOn) {
+            if (!gpsStatusOn) {
+                //send intent to show "Please turn on location services."
+                Intent intentChangeMainText = new Intent();
+                intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+                intentChangeMainText.setAction(WidgetProvider.SET_NO_LOCATION_TEXT);
+                mContext.sendBroadcast(intentChangeMainText);
+                refreshing = false;
+            }
+
+            if (gpsStatusOn && !networkStatusOn) {
+                System.err.println("SEND NETWORK IS OFF INTENT");
+                //send intent to show "No network connection available."
+                Intent intentChangeMainText = new Intent();
+                intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+                intentChangeMainText.setAction(WidgetProvider.SET_NO_CONNECTION_TEXT);
+                mContext.sendBroadcast(intentChangeMainText);
+                refreshing = false;
+            }
+
+            if (gpsStatusOn && networkStatusOn) {
                 getOnlineData();
 
-                if (entityArray.size() == 0 && networkStatusOn) {
+                if (entityArray.size() == 0) {
                     //send intent to show "The list is empty."
                     Intent intentChangeMainText = new Intent();
                     intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
@@ -137,24 +160,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                     mContext.sendBroadcast(intentChangeMainText);
                     refreshing = false;
                 }
-
-                if (!networkStatusOn) {
-                    System.err.println("SEND NETWORK IS OFF INTENT");
-                    //send intent to show "No network connection available."
-                    Intent intentChangeMainText = new Intent();
-                    intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-                    intentChangeMainText.setAction(WidgetProvider.SET_NO_CONNECTION_TEXT);
-                    mContext.sendBroadcast(intentChangeMainText);
-                    refreshing = false;
-                }
-
-            } else {
-                //send intent to show "Please turn on location services."
-                Intent intentChangeMainText = new Intent();
-                intentChangeMainText.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-                intentChangeMainText.setAction(WidgetProvider.SET_NO_LOCATION_TEXT);
-                mContext.sendBroadcast(intentChangeMainText);
-                refreshing = false;
             }
 
             System.err.println("ENTITY ARRAY SIZE:" + entityArray.size());
@@ -168,6 +173,20 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             refreshing = false;
         }
 
+    }
+
+    private boolean checkNetworkConnection() {
+
+        ConnectivityManager conManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo i = conManager.getActiveNetworkInfo();
+        if (i == null)
+            return false;
+        if (!i.isConnected())
+            return false;
+        if (!i.isAvailable())
+            return false;
+        return true;
     }
 
     public int getCount() {
@@ -207,55 +226,50 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             // getting JSON string from URL
             JSONObject json = JSONParser.getJSONFromUrl(queryUrl);
             System.err.println("PASSED QUERY");
-            if (!JSONParser.networkOn) {
-                System.err.println("NETWORK IS OFF");
-                networkStatusOn = false;
-            } else {
 
-                // Getting Array of Places
-                entities = json.getJSONArray(TAG_ENTITIES);
+            // Getting Array of Places
+            entities = json.getJSONArray(TAG_ENTITIES);
 
-                // looping through all entities
-                System.err.println("ENTITIES LENGTH:" + entities.length());
-                for (int i = 0; i < entities.length(); i++) {
-                    JSONObject ent = entities.getJSONObject(i);
+            // looping through all entities
+            System.err.println("ENTITIES LENGTH:" + entities.length());
+            for (int i = 0; i < entities.length(); i++) {
+                JSONObject ent = entities.getJSONObject(i);
 
-                    if (ent.has(TAG_TOP_MENU_ITEM)) {
-                        // Storing each json item in variable
+                if (ent.has(TAG_TOP_MENU_ITEM)) {
+                    // Storing each json item in variable
 
-                        String name = ent.getString(TAG_NAME);
+                    String name = ent.getString(TAG_NAME);
 
-                        String uriWeb = ent.getString(TAG_NESS_WEB_URI);
+                    String uriWeb = ent.getString(TAG_NESS_WEB_URI);
 
-                        JSONObject loc = ent.getJSONObject(TAG_LOCATION);
-                        double entLat = loc.getDouble(TAG_LATITUDE);
-                        double entLon = loc.getDouble(TAG_LONGITUDE);
+                    JSONObject loc = ent.getJSONObject(TAG_LOCATION);
+                    double entLat = loc.getDouble(TAG_LATITUDE);
+                    double entLon = loc.getDouble(TAG_LONGITUDE);
 
-                        JSONObject topItem = ent.getJSONObject(TAG_TOP_MENU_ITEM);
-                        String topItemName = topItem.getString(TAG_NAME);
-                        JSONObject topItemPhoto = topItem.getJSONObject(TAG_PHOTO);
-                        String topItemImgUrl = null;
-                        if (topItemPhoto.has(TAG_THUMBNAIL)) {
-                            topItemImgUrl = topItemPhoto.getString(TAG_THUMBNAIL);
-                        }
+                    JSONObject topItem = ent.getJSONObject(TAG_TOP_MENU_ITEM);
+                    String topItemName = topItem.getString(TAG_NAME);
+                    JSONObject topItemPhoto = topItem.getJSONObject(TAG_PHOTO);
+                    String topItemImgUrl = null;
+                    if (topItemPhoto.has(TAG_THUMBNAIL)) {
+                        topItemImgUrl = topItemPhoto.getString(TAG_THUMBNAIL);
+                    }
 
-                        String urlImg = null;
-                        if (ent.has(TAG_COVERPHOTO)) {
-                            JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
-                            urlImg = coverphoto.getString(TAG_THUMBNAIL);
-                        }
+                    String urlImg = null;
+                    if (ent.has(TAG_COVERPHOTO)) {
+                        JSONObject coverphoto = ent.getJSONObject(TAG_COVERPHOTO);
+                        urlImg = coverphoto.getString(TAG_THUMBNAIL);
+                    }
 
-                        //if entity has a photo, create Entity object with these variables and add it to an array
-                        if (urlImg != null || topItemPhoto != null) {
-                            Entity objEntity = new Entity(name, uriWeb, urlImg, topItemName, topItemImgUrl, entLat, entLon);
-                            entityArray.add(objEntity);
+                    //if entity has a photo, create Entity object with these variables and add it to an array
+                    if (urlImg != null || topItemPhoto != null) {
+                        Entity objEntity = new Entity(name, uriWeb, urlImg, topItemName, topItemImgUrl, entLat, entLon);
+                        entityArray.add(objEntity);
 
-                            System.err.println("ENT:" + objEntity.name);
-                        }
+                        System.err.println("ENT:" + objEntity.name);
                     }
                 }
-
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

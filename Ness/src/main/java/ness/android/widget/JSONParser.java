@@ -24,8 +24,6 @@ public class JSONParser {
     static JSONObject jObj = null;
     static String json = "";
 
-    public static boolean networkOn = false;
-
     // constructor
     public JSONParser() {
 
@@ -48,7 +46,6 @@ public class JSONParser {
             System.err.println("MAKING QUERY3");
 
             is = httpEntity.getContent();
-            networkOn = true;
             System.err.println("FINISH QUERY");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -57,7 +54,6 @@ public class JSONParser {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
-            networkOn = false;
             e.printStackTrace();
         }
 
