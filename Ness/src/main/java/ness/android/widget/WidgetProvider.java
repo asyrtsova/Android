@@ -165,7 +165,7 @@ public class WidgetProvider extends AppWidgetProvider {
         //sets text in case no location services are available
         if (intent.getAction().equals(SET_NO_CONNECTION_TEXT)) {
 
-                remoteViews.setTextViewText(R.id.widget_view_text, "No network connection available.");
+                remoteViews.setTextViewText(R.id.widget_view_text, "Please check your connection.");
                 remoteViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
                 remoteViews.setViewVisibility(R.id.progress_bar, View.INVISIBLE);
 
