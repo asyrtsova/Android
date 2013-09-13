@@ -74,7 +74,7 @@ public class JSONParser {
 
         // try parse the string to a JSON object
         try {
-            System.err.println("PARSE STRING TO JSON OBJ 1");
+            System.err.println("PARSE STRING TO JSON OBJ 1, JSON:" + json);
             jObj = new JSONObject(json);
             System.err.println("PARSE STRING TO JSON OBJ 2");
 

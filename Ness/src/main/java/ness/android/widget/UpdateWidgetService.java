@@ -218,7 +218,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         String urlTime = getTime();
 
-        queryUrl = "https://api-v3-s.trumpet.io/json-api/v3/search?options=HIDE_CLOSED_PLACES&lat=" + latitude + "&sortBy=BEST&lon=" + longitude + "&category=restaurant&localtime=" + urlTime + "&userId=00000000-000e-c25d-c000-000000026810&magicScreen=MENU";
+        queryUrl = "https://api-v3-p.trumpet.io/json-api/v3/search?options=HIDE_CLOSED_PLACES&lat=" + latitude + "&sortBy=BEST&lon=" + longitude + "&category=restaurant&localtime=" + urlTime + "&userId=00000000-000e-c25d-c000-000000026810&magicScreen=MENU";
 
         System.err.println("QUERY URL:" + queryUrl);
 
@@ -286,13 +286,31 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     private void getGPSlocation() {
-        gps = new GPSTracker(mContext);
 
-        if (gps.canGetLocation()) {
-            latitude = gps.getLatitude();
-            longitude = gps.getLongitude();
+        GPLocationServices gpLocationServices = new GPLocationServices(mContext);
+        if (gpLocationServices.servicesAvailable) {
+            try {
+                gpLocationServices.dataAvailable.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            latitude = gpLocationServices.lat;
+            longitude = gpLocationServices.lon;
+            System.err.println("IN SERVICE : LAT: " + gpLocationServices.lat + " LON:" + gpLocationServices.lon);
 
             gpsStatusOn = true;
+
+        } else if (!gpLocationServices.servicesAvailable) {
+
+            gps = new GPSTracker(mContext);
+
+            if (gps.canGetLocation()) {
+                latitude = gps.getLatitude();
+                longitude = gps.getLongitude();
+
+                gpsStatusOn = true;
+            }
+
         } else {
             gpsStatusOn = false;
         }

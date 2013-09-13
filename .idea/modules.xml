@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Ness/Ness.iml" filepath="$PROJECT_DIR$/Ness/Ness.iml" />
       <module fileurl="file://$PROJECT_DIR$/NessProject.iml" filepath="$PROJECT_DIR$/NessProject.iml" />
+      <module fileurl="file://$PROJECT_DIR$/google-play-services/google-play-services.iml" filepath="$PROJECT_DIR$/google-play-services/google-play-services.iml" />
     </modules>
   </component>
 </project>
